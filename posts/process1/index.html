@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Émeric misexperiment blog  | Process1</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="generator" content="Hugo 0.26" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    <link href='https://cheme.github.io/dist/main.css' rel='stylesheet' type="text/css" />
+    
+      
+    
+
+    
+
+    <meta property="og:title" content="Process1" />
+<meta property="og:description" content="MyDHT Refactoring And Threading (part 1) Lastly I got some time in my hand (ended my previous job and looking for more low level programming) to refactor some pretty terrible old project of mine.
+Even if the refactor is far from complete, the design and its primo implementation is.
+This post focus on MyDHT redesign,
+Previous design The initial purpose of MyDHT project was to design a library to run a distributed hash table." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://cheme.github.io/posts/process1/" />
+
+
+
+<meta property="article:published_time" content="2017-10-22T10:56:08&#43;02:00"/>
+<meta property="article:modified_time" content="2017-10-22T10:56:08&#43;02:00"/>
+
+
+
+
+
+
+
+
+
+
+
+<meta itemprop="name" content="Process1">
+<meta itemprop="description" content="MyDHT Refactoring And Threading (part 1) Lastly I got some time in my hand (ended my previous job and looking for more low level programming) to refactor some pretty terrible old project of mine.
+Even if the refactor is far from complete, the design and its primo implementation is.
+This post focus on MyDHT redesign,
+Previous design The initial purpose of MyDHT project was to design a library to run a distributed hash table.">
+
+
+<meta itemprop="dateModified" content="2017-10-22T10:56:08&#43;02:00" />
+<meta itemprop="wordCount" content="2259">
+
+
+
+<meta itemprop="keywords" content="programming,p2p,design,rust," />
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Process1"/>
+<meta name="twitter:description" content="MyDHT Refactoring And Threading (part 1) Lastly I got some time in my hand (ended my previous job and looking for more low level programming) to refactor some pretty terrible old project of mine.
+Even if the refactor is far from complete, the design and its primo implementation is.
+This post focus on MyDHT redesign,
+Previous design The initial purpose of MyDHT project was to design a library to run a distributed hash table."/>
+
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://cheme.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      Émeric misexperiment blog
+    </a>
+    <div class="flex-l items-center">
+      
+      
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+  <div class="flex-l mt2 mw8 center">
+    <article class="center cf pv5 ph3 ph4-ns mw7">
+      <header>
+        <p class="f6 b helvetica tracked">
+          POSTS
+        </p>
+        <h1 class="f1">
+          Process1
+        </h1>
+      </header>
+      <div class="nested-copy-line-height lh-copy f4 nested-links nested-img mid-gray">
+        
+
+<h1 id="mydht-refactoring-and-threading-part-1">MyDHT Refactoring And Threading (part 1)</h1>
+
+<p>Lastly I got some time in my hand (ended my previous job and looking for more low level programming) to refactor some pretty terrible old project of mine.</p>
+
+<p>Even if the refactor is far from complete, the design and its primo implementation is.</p>
+
+<p>This post focus on <a href="https://www.github.com/cheme/mydht">MyDHT</a> redesign,</p>
+
+<h1 id="previous-design">Previous design</h1>
+
+<p>The initial purpose of MyDHT project was to design a library to run a distributed hash table. It evolves to key value peer to peer info exchange with multi-hop request proxying (query proxyied to none connected peers).
+Before redesign, it finally was a HashTable only if using a right Routing implementation (eg mydht-btkad (currently broken)).<br />
+Final goal was at the time to implement web of trust application upon this technical brick (some testing with broken mydht-wot).</p>
+
+<p>At the time I was less aware of asynch transport and used only standard rust api (blocking transport) :
+- a transport trait based upon rust tcp synch api, but with some very odd design. The odd design let me run it on udp with dirty tricks (reader containing the udp frame and read thread running from start on every one). I also give some attempt to use mio (asynch transport) but using it under this design had very few advantages and I dropped it when the coroutine crate I used at the time becames deprecated.
+So we got a read stream and a write stream : we allow unidirectionnal transport with one socket sending to dest peer and one other socket receiving from dest peer, but we also allow using the same socket depending on transport implementation (internally both read and write stream can use the same tcp socket and be spawn at the same time in transport)
+- a peer abstraction (related to transport listening address obviously)
+- a keyval abstraction for content to be share (peer being obviously a keyval)
+- the encoding/decoding of Key Value was using Rust standard serialize abstraction which I switch to serde with my refacto. It allows many type of exchanges (actually test case runs only over json and binary (bincode crate)).
+- authentication scheme was broken (udp implementation was allowed by it) : with only two messages called ping and pong leading to a potential dos replay attack, new scheme run with ping - pong - pong (three message).
+- rules were overly complicated and ill designed (it stay true but limited to kvstore service now)
+- some shadowing mechanism where implemented (refacto was done to use my &lsquo;readwrite-comp&rsquo; lib which was totally inspired by this) allowing some forms of encryption over transport.
+- keyval and peer storage trait with cache trait and query cache trait, quite a mess by looking back, still have to redesign that
+- Route trait to decide which peers to query, same still need some redesign</p>
+
+<p>The schema bellow gives an idea of the running threads :</p>
+
+<p><img src="../../static/procs1.png" alt="previousdesign" /></p>
+
+<p>Missing from schema are a few single thread like Key/Value storage, or Peer storage (in routing table), honestly I do not quite get this schema anymore, main things of interest are:</p>
+
+<p>Communication between thread used standard Mpsc, with Arc over peer and KeyVal. The senders channel were group in a &lsquo;RunningProcess&rsquo; clonable struct  : that was pretty flexible and basically every thread could send message to any thread, except the read and write threads as destination. Read thread was driven by transport and write message proxied by peer management thread to write thread.</p>
+
+<p>All thread where implemented as a single static function call (with a lot of parameter and generic type (generic type were grouped in a few single generic traits by using associated trait but it still looks prety bad)).</p>
+
+<p>Quickly opening unconditionnaly so many system thread felt as bad design and I put some dirty &lsquo;ClientMode&rsquo; and &lsquo;ServerMode&rsquo; enum (and their associated handle) to allow running read and write process in a new thread or in a batch of existing threads or as a local function call in the parent thread.<br />
+Client and Server function call became fastly unintelligible, and it requires to change of &lsquo;Transport&rsquo; trait by introducing a circumvoluted &lsquo;start&rsquo; function using a closure over the server (read) thread called on reception of a new connection.<br />
+<a href="https://github.com/cheme/mydht/blob/8d2ff89d48ea9ef993524aabed7b666ba91f8160/src/procs/server.rs">https://github.com/cheme/mydht/blob/8d2ff89d48ea9ef993524aabed7b666ba91f8160/src/procs/server.rs</a> line 160 to 220 is a good illustration of this point.</p>
+
+<h1 id="new-design">New design</h1>
+
+<p>Being totaly annoyed by threads everywhere (it is a library and I do not want to make those choice definitive), ClientMode and ServerMode were added. Looking back at it, it is close to unmaintanable and only implemented for Server (read stream) and Client (write stream) process.</p>
+
+<p>This was one of my concerns while getting back at mydht, with a few simple goals :
+ - usage of future lib to simplify the thread model
+ - actual usage of asynch transport
+ - dependencies upgrade : serde usage being the most obvious, new version of openssl (nice change in api but impacting)&hellip;</p>
+
+<p>Investigating the &lsquo;future&rsquo; crate and tokio ecosystem, I almost go that way but some of my plan at the time did not match (looking back at my final service abstraction it should have match except for a few details), especially the idea that I wanted a more stream oriented transport trait (I want to plug my &lsquo;tunnel&rsquo; lib other the transport but by using MyDHT internal peer management).<br />
+I also had quite some fun using Mio (epoll for rust lib) directly and really liked the changes made to the api from the last time I tested it, and decide to run bare mio (no abstraction as I thought it would be a quick job) with very basic state and service (ideally service should simplify and replace what was run with &lsquo;ClientHandle&rsquo; and &lsquo;ServerHandle&rsquo; before).</p>
+
+<p>So started with transport trait redesign, I quickly felt as uneasy as before : I should use an Arc here, this should run in another thread but not in all case&hellip; And I use a &lsquo;Service&rsquo; thread which was inspired by tokio service design and a suspend/yield mechanism inconsciously inspired by some of the future concept (especially the fact that when experimenting with future I add to unpark future thread at some point keep a thread handle).</p>
+
+<p>The point at first was to stop running those previous procs functions.
+Next it quickly lead to a service based approach (model has change quite a bit from the start but seems ok now (except the dissiciation of channel and service leading to very verbose things)). At end, it look similar to what remember of erlang OTP.</p>
+
+<h2 id="service-traits">Service traits</h2>
+
+<ul>
+<li>Service</li>
+</ul>
+
+<pre><code class="language-rust">pub trait Service {
+  type CommandIn;
+  type CommandOut;
+  fn call&lt;S : SpawnerYield&gt;(&amp;mut self, req: Self::CommandIn, async_yield : &amp;mut S) -&gt; Result&lt;Self::CommandOut&gt;;
+}
+</code></pre>
+
+<p>CommandIn and CommadOut are receive from or send into channels.</p>
+
+<ul>
+<li>Spawner</li>
+</ul>
+
+<pre><code class="language-rust">pub trait Spawner&lt;
+  S : Service,
+  D : SpawnSend&lt;&lt;S as Service&gt;::CommandOut&gt;,
+  R : SpawnRecv&lt;&lt;S as Service&gt;::CommandIn&gt;&gt; {
+  type Handle : SpawnHandle&lt;S,D,R&gt;;
+  type Yield : SpawnerYield;
+  fn spawn (
+    &amp;mut self,
+    service : S,
+    spawn_out : D,
+    Option&lt;&lt;S as Service&gt;::CommandIn&gt;,
+    rec : R,
+    nb_loop : usize // infinite if 0
+  ) -&gt; Result&lt;Self::Handle&gt;;
+}
+</code></pre>
+
+<p>Basically a way to call a service for a certain number of iteration, each iteration being the reception of a command from input channel the service call and the sending of the service result in the output channel.</p>
+
+<ul>
+<li>Channel</li>
+</ul>
+
+<pre><code class="language-rust">pub trait SpawnChannel&lt;Command&gt; {
+  type WeakSend : SpawnSend&lt;Command&gt; + Clone;
+  type Send : SpawnSend&lt;Command&gt; + Clone;
+  type Recv : SpawnRecv&lt;Command&gt;;
+  fn new(&amp;mut self) -&gt; Result&lt;(Self::Send,Self::Recv)&gt;;
+  fn get_weak_send(&amp;Self::Send) -&gt; Option&lt;Self::WeakSend&gt;;
+}
+</code></pre>
+
+<p>with spawn send and spawn receive similar to an mpsc channel (a const boolean indicate if a channel can send but I should remove it).</p>
+
+<pre><code class="language-rust">pub trait SpawnSend&lt;Command&gt; : Sized {
+  const CAN_SEND : bool;
+  fn send(&amp;mut self, Command) -&gt; Result&lt;()&gt;;
+}
+pub trait SpawnRecv&lt;Command&gt; : Sized {
+  fn recv(&amp;mut self) -&gt; Result&lt;Option&lt;Command&gt;&gt;;
+}
+</code></pre>
+
+<ul>
+<li>Yield</li>
+</ul>
+
+<p>Yield is the spawn associatied type that is called when getting a new message from the input channel if empty, but can also be directly call from service.</p>
+
+<pre><code class="language-rust">pub trait SpawnerYield {
+  fn spawn_yield(&amp;mut self) -&gt; YieldReturn;
+}
+</code></pre>
+
+<p>An example of direct call from service is when Read transport stream being asynch return a WouldBlock error : then we suspend.</p>
+
+<p>Suspend can result in two behavior :</p>
+
+<ul>
+<li>YieldReturn::Return : the state is stored in service and we exit from execution (will be restore later from handle)</li>
+
+<li><p>YieldReturn::Loop : the Yield and spawn lead to a context switch and Unyield will pursue exection at this point so in this case we only need to redo the command which leads to suspend.</p>
+
+<ul>
+<li>Handle</li>
+</ul></li>
+</ul>
+
+<p>Yes it feels bad, I wanted to get rid of those Client and Server Handle and have associated Service Handle now&hellip; At least this is reusable and not as specific to a context as before.</p>
+
+<pre><code class="language-rust">pub trait SpawnHandle&lt;Service,Sen,Recv&gt; : SpawnUnyield {
+  type WeakHandle : SpawnUnyield + Clone;
+
+  fn unwrap_state(self) -&gt; Result&lt;(Service,Sen,Recv,Result&lt;()&gt;)&gt;;
+  fn get_weak_handle(&amp;self) -&gt; Option&lt;Self::WeakHandle&gt;;
+}
+</code></pre>
+
+<p>The handle let us get the service state (when service is finished) to restart service or manage unprocessed command.
+A weak handle allows sharing a bit of this handle but is not mandatory (use &lsquo;NoHandle&rsquo; as associated type and return None if such an implementation is impossible or bad).
+The handle is also &lsquo;SpawnUnyield&rsquo; letting us unyield suspend service and also check if service is still running.</p>
+
+<pre><code class="language-rust">pub trait SpawnUnyield {
+  fn is_finished(&amp;mut self) -&gt; bool;
+  fn unyield(&amp;mut self) -&gt; Result&lt;()&gt;;
+}
+
+</code></pre>
+
+<ul>
+<li>Synch object</li>
+</ul>
+
+<p>In my previous implementation, having spend sometime doing few haskell, I tend to confuse a reference with an immutable object and force the Sync trait at many place (on peer and keyval at least) by considering those value to be read only (they are and a change in Peer address should be propagated to all process (currently it looks more robust on this point)), but that is kinda wrong.</p>
+
+<p>Switching reference was also needed, with a local spawner (when we spawn without new thread) we do not require KeyVal or Peer to be &lsquo;Send&rsquo; and &lsquo;Arc&rsquo; default usage was useless : we defines Ref<P> and SRef traits.</p>
+
+<pre><code class="language-rust">pub trait Ref&lt;T&gt; : SRef + Borrow&lt;T&gt; {
+  fn new(t : T) -&gt; Self;
+}
+</code></pre>
+
+<p>Those Ref will mainly be Arc (&lsquo;ArcRef&rsquo;) when running other multiple thread and Rc (&lsquo;RcRef&rsquo;) with copy in between thread when running with less threaded configs or small contents (for such &lsquo;CloneRef&rsquo; can be use).</p>
+
+<p>Currently it is only applied to the very central Peer object (not KeyVal directly as we do not have a central KeyVal concept but a global service implementation which can run a KeyVal exchange).</p>
+
+<pre><code class="language-rust">pub trait SRef : Sized {
+  type Send : SToRef&lt;Self&gt;;
+  fn get_sendable(self) -&gt; Self::Send;
+}
+pub trait SToRef&lt;T : SRef&gt; : Send + Sized {
+  fn to_ref(self) -&gt; T;
+}
+</code></pre>
+
+<p>Basically SRef is similar to Into<Send> but with a single associated type and a way back.</p>
+
+<h2 id="consequence-on-design">Consequence on design</h2>
+
+<p>This service abstraction makes it even clearer that MyDHT is not a DHT. With previous design we had to create some strange &lsquo;key&rsquo; trait for executing some strange &lsquo;store&rsquo; action in some strange &lsquo;keyval storage&rsquo; (eg old broken mydht-wot web of trust crate) : it was almost obvious that we could replace &lsquo;Key&rsquo; by &lsquo;Query&rsquo; and &lsquo;KeyVal&rsquo; by Reply.
+  Therefore this time we do not use an explicit &lsquo;keyval&rsquo; Store but a global service with messages. Code from previous design is ported to the a KVStoreService which when use as GlobalService is almost the same as previous storage of KeyVal. This service implementation is not in an external crates because it is also the default peer storage/exchange implementation.</p>
+
+<p>A simple schema (without Synch transport related trait (may be describe in a future post)) would be :</p>
+
+<p><img src="../../static/procs1.png" alt="previousdesign" /></p>
+
+<p>Every box uses a service with configurable spawner and channels (generally simple input channel and multiplexed output (struct named as &lsquo;service&rsquo; + Dest)).</p>
+
+<p>All messages between service can be route by MainLoop service. MainLoop service contains the peer cache and the Mio Loop for asynch event registration (MainLoop command also registered on it) : MainLoop does not actually suspend and in code we can see that its channels are plugged a bit differently due to its central role (can proxy almost any message).
+This central bottleneck can be greatly relieved by establishing other optional channels (combination of weak handle and weak sender), yet this is the core routing (optional channels if closed due to restarted service or no channel/spawner implementation are removed and default routing through mainloop is used).</p>
+
+<p>So those optional HandleSend (depending on spawn and channel choice) allows communicating directly with others service : currently a few are used :
+  - api from local and global and peerstore
+  - write from read service (corresponding, only when write service is spawn first(the other scenario need to be implemented but it require to change ReadDest content probably by stoping read service and restarting it after))
+  - write from local : same as read (readdest is cloned into localdest)
+  - global from local</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Another possibility for simplier service traits could be to have a single function for unyielding and sending message : put Channel into SpawnUnyield.</p>
+
+<p>Service definition use too much traits and I need a way to run simple use case (I am thinking macro right now), default associated trait does not fit (need to redefine all if changing one) at the time.</p>
+
+<p>Generaly channels implementations require a limit in their buffers, especially for service such as &lsquo;Write&rsquo; where the message are consumed after authentication but can be send before. That is not an issue as the trait can already return errors.</p>
+
+<p>Next post (part 2) will describe some configuring of those service.</p>
+
+      </div>
+    </article>
+    <aside class="ph3 mt2 mt6-ns">
+      
+
+
+
+
+
+
+
+
+    </aside>
+  </div>
+
+    </main>
+    <footer class="bg-near-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://cheme.github.io/" >
+    &copy; 2017 Émeric misexperiment blog
+  </a>
+  
+
+
+
+
+
+
+
+
+  </div>
+</footer>
+
+    <script src="https://cheme.github.io/dist/app.bundle.js" async></script>
+
+  </body>
+</html>
