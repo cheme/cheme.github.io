@@ -1,3 +1,16 @@
+---
+title: "Process1"
+date: 2017-10-22T10:56:08+02:00
+draft: true
+categories: 
+  - "MyDHT"
+  - "rust"
+tags:
+  - "programming"
+  - "p2p"
+  - "design"
+  - "rust"
+---
 # MyDHT Refactoring And Threading (part 1)
 
 Lastly I got some time in my hand (ended my previous job and looking for more low level programming) to refactor some pretty terrible old project of mine.
@@ -27,7 +40,7 @@ So we got a read stream and a write stream : we allow unidirectionnal transport
 
 The schema bellow gives an idea of the running threads :
 
-![previousdesign](./procs1.png)
+![previousdesign](../../static/procs1.png)
 
 Missing from schema are a few single thread like Key/Value storage, or Peer storage (in routing table), honestly I do not quite get this schema anymore, main things of interest are:
 
@@ -187,7 +200,7 @@ Basically SRef is similar to Into<Send> but with a single associated type and a 
 
 A simple schema (without Synch transport related trait (may be describe in a future post)) would be :
 
-![previousdesign](./procs1.png)
+![previousdesign](../../static/procs1.png)
 
 Every box uses a service with configurable spawner and channels (generally simple input channel and multiplexed output (struct named as 'service' + Dest)).
 

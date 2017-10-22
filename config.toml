@@ -1,0 +1,4 @@
+baseURL = "https://cheme.github.io/"
+languageCode = "en-us"
+title = "Émeric misexperiment blog"
+theme = "ananke"
