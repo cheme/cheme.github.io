@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Émeric misexperiment blog  | MyDHT service usage switch (part 2)</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="generator" content="Hugo 0.26" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    <link href='https://cheme.github.io/dist/main.css' rel='stylesheet' type="text/css" />
+    
+      
+    
+
+    
+
+    <meta property="og:title" content="MyDHT service usage switch (part 2)" />
+<meta property="og:description" content="The point of this post is to give a taste of how service are configured within the MyDHT new design. we are going to adapt a test case to run in a single thread.
+All changes describe are on &lsquo;MyDHTConf&rsquo; trait implementation for &lsquo;TestLocalConf&rsquo; struct (to create an application this big trait must be implemented : basically it contains the associated types and the initialisation functions of every components)." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://cheme.github.io/posts/process2/" />
+
+
+
+<meta property="article:published_time" content="2017-10-29T10:14:08&#43;02:00"/>
+<meta property="article:modified_time" content="2017-10-29T10:14:08&#43;02:00"/>
+
+
+
+
+
+
+
+
+
+
+
+<meta itemprop="name" content="MyDHT service usage switch (part 2)">
+<meta itemprop="description" content="The point of this post is to give a taste of how service are configured within the MyDHT new design. we are going to adapt a test case to run in a single thread.
+All changes describe are on &lsquo;MyDHTConf&rsquo; trait implementation for &lsquo;TestLocalConf&rsquo; struct (to create an application this big trait must be implemented : basically it contains the associated types and the initialisation functions of every components).">
+
+
+<meta itemprop="dateModified" content="2017-10-29T10:14:08&#43;02:00" />
+<meta itemprop="wordCount" content="3378">
+
+
+
+<meta itemprop="keywords" content="programming,p2p,design,rust," />
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="MyDHT service usage switch (part 2)"/>
+<meta name="twitter:description" content="The point of this post is to give a taste of how service are configured within the MyDHT new design. we are going to adapt a test case to run in a single thread.
+All changes describe are on &lsquo;MyDHTConf&rsquo; trait implementation for &lsquo;TestLocalConf&rsquo; struct (to create an application this big trait must be implemented : basically it contains the associated types and the initialisation functions of every components)."/>
+
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://cheme.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      Émeric misexperiment blog
+    </a>
+    <div class="flex-l items-center">
+      
+      
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+  <div class="flex-l mt2 mw8 center">
+    <article class="center cf pv5 ph3 ph4-ns mw7">
+      <header>
+        <p class="f6 b helvetica tracked">
+          POSTS
+        </p>
+        <h1 class="f1">
+          MyDHT service usage switch (part 2)
+        </h1>
+      </header>
+      <div class="nested-copy-line-height lh-copy f4 nested-links nested-img mid-gray">
+        
+
+<p>The point of this post is to give a taste of how service are configured within the <a href="https://www.github.com/cheme/mydht">MyDHT</a> new design.
+we are going to adapt a test case to run in a single thread.</p>
+
+<p>All changes describe are on &lsquo;MyDHTConf&rsquo; trait implementation for &lsquo;TestLocalConf&rsquo; struct (to create an application this big trait must be implemented : basically it contains the associated types and the initialisation functions of every components).</p>
+
+<h1 id="configuring-thread">configuring thread</h1>
+
+<p>The test case, &lsquo;test/mainloop.rs&rsquo; test_connect_all_th, is a simple test running a local service proxying the message to the globalservice (useless except for testing), with a global service implementation managing a few touch (ping/pong) commands. The messages transmitted within this test are simple authentication (library standard), simple touch service (global service) and a simple peer query (library standard with code that can be use as global service).</p>
+
+<p>&lsquo;ThreadPark&rsquo; spawner is used almost everywhere with an Mpsc channel and use ArcRef over Peer (Arc).</p>
+
+<p>Our new test case &lsquo;test_connect_local&rsquo; will be running as much as possible over a single thread, through MyDHTConf trait for &lsquo;TestLocalConf&rsquo;.<br />
+So the starting point will be a copy of the full multithreaded original test case, and we will progessivly change it to a single thread usage.</p>
+
+<h2 id="stref-and-usage-of-non-send-reference">STRef and usage of non Send reference</h2>
+
+<p>Firstly, the question of Arc usage without threads. Arc is use other peers (immutable and implementation dependent sized), and can be switch to RC, but that is not true for the library implementation (usage of thread or not is unknown), therefore we will use Rc through RcRef (implements SRef and Ref&lt;P&gt;) where we previously use Arc through ArcRef.</p>
+
+<pre><code class="language-rust">  pub trait Ref&lt;T&gt; : SRef + Borrow&lt;T&gt; {
+    fn new(t : T) -&gt; Self;
+  }
+</code></pre>
+
+<p>Ref&lt;P&gt; is an abstraction of a immutable reference (Borrow&lt;P&gt; plus Clone within mydht), and replace old Arc&lt;P&gt; in our code. Ref&lt;P&gt; needs to be &lsquo;Send&rsquo; (ArcRef) when we spawn threads, but could also not be send (RcRef) when we do not spawn thread (Send trait is a rust marker indicating that a type can be send to other threads, Rc as a counted reference cannot).</p>
+
+<pre><code class="language-rust">  type PeerRef = RcRef&lt;Self::Peer&gt;;
+  //type PeerRef = ArcRef&lt;Self::Peer&gt;;
+</code></pre>
+
+<p>Compiling it will obviously break everywhere : there is no way that our &lsquo;MpscChannel&rsquo; (which is only a wrapper over standard rust mpsc sender and receiver) will run with some Rc&lt;Peer&gt; which are not Send.</p>
+
+<p>4 nice errors appears all similar to :</p>
+
+<pre><code>error[E0277]: the trait bound `std::rc::Rc&lt;mydht_basetest::node::Node&gt;: std::marker::Send` is not satisfied in `procs::server2::ReadService&lt;test::mainloop::TestLocalConf&gt;`
+   --&gt; src/test/mainloop.rs:658:6
+    |
+658 | impl MyDHTConf for TestLocalConf {
+    |      ^^^^^^^^^ `std::rc::Rc&lt;mydht_basetest::node::Node&gt;` cannot be sent between threads safely
+    |
+    = help: within `procs::server2::ReadService&lt;test::mainloop::TestLocalConf&gt;`, the trait `std::marker::Send` is not implemented for `std::rc::Rc&lt;mydht_basetest::node::Node&gt;`
+    = note: required because it appears within the type `mydht_base::utils::RcRef&lt;mydht_basetest::node::Node&gt;`
+    = note: required because it appears within the type `procs::server2::ReadService&lt;test::mainloop::TestLocalConf&gt;`
+    = note: required because of the requirements on the impl of `mydht_base::service::Spawner&lt;procs::server2::ReadService&lt;test::mainloop::TestLocalConf&gt;, procs::server2::ReadDest&lt;test::mainloop::TestLocalConf&gt;, mydht_base::service::DefaultRecv&lt;procs::server2::ReadCommand, std::sync::mpsc::Receiver&lt;procs::server2::ReadCommand&gt;&gt;&gt;` for `mydht_base::service::ThreadPark`
+</code></pre>
+
+<p>At this point we could change all threaded spawner to have no new thread and no needs for Send, but we want to be able to mix thread and non thread spawner without having to use ArcRef : the use case where we transmit peers as RcRef or CloneRef (for instance if peers is a single ip address) and still use multithreading.</p>
+
+<p>So the solution will be to simply copy/clone the Rc to the new thread, that is what the SRef trait implementation of RcRef does : give an associated sendable type for Rc&lt;Peer&gt; (simply cloning Peer) and after sending thist type in the spawn thread, put it back this to its original type : a RcRef (putting it back may not be suitable but RcRef&lt;Peer&gt; is the only kind of peer define in the mydhtconf trait and use in service commands).<br />
+SRef is therefore a way to send a struct by using an associated sendable type, for type that are already sendable (like ArcRef) the associated type is simply &lsquo;Self&rsquo;. The associated type reverts to original type through &lsquo;SToRef&rsquo; implementation.</p>
+
+<pre><code class="language-rust">pub trait SRef : Sized {
+  type Send : SToRef&lt;Self&gt;;
+  fn get_sendable(self) -&gt; Self::Send;
+}
+pub trait SToRef&lt;T : SRef&gt; : Send + Sized {
+  fn to_ref(self) -&gt; T;
+}
+</code></pre>
+
+<p>Note, Ref&lt;P&gt; as an SRef is weaker than an Arc as it does not ensure that the same object is use in two threads after cloning, it simply ensure that we borrow the same origin information (considering P to be kindof immutable).<br />
+This sending of SRef could not be achieve with MpscChannel (MpscChannel is constrained on Send trait), but another Channel implementation is doing it (cloning/unwraping on write and putting back to Ref on recv) : &lsquo;MpscChannelRef&rsquo;</p>
+
+<pre><code class="language-rust">pub struct MpscChannelRef;
+pub struct MpscSenderRef&lt;C : SRef&gt;(MpscSender&lt;C::Send&gt;);
+pub struct MpscReceiverRef&lt;C : SRef&gt;(MpscReceiver&lt;C::Send&gt;);
+pub struct MpscSenderToRef&lt;CS&gt;(MpscSender&lt;CS&gt;);
+pub struct MpscReceiverToRef&lt;CS&gt;(MpscReceiver&lt;CS&gt;);
+</code></pre>
+
+<p>It simply wraps an MpscSender of the sendable inner type of our Ref<P> as an SRef, implementation is straightforward (get_sendable before sending and to_ref after sending).</p>
+
+<p>Se we change all our channels : ApiChannelIn, PeerStoreServiceChannelIn, MainLoopChannelIn, MainLoopChannelOut, ReadChannelIn, WriteChannelIn, PeerMgmtChannelIn, GlobalServiceChannelIn, except localproxy service channels where we already use a &lsquo;NoChannel&rsquo; as input (received message is build from frame in Read service) and a non threaded spawner : see &lsquo;localproxyglobal&rsquo; macro.<br />
+Then after manually implementing SRef for a lot of Command and Reply struct (a macro is really needed eg boilerplate code for mainloop command <a href="https://github.com/cheme/mydht/blob/0578b3ceef4678e9f341199bcb5f8deafbe6bfab/mydht/src/procs/mainloop.rs">https://github.com/cheme/mydht/blob/0578b3ceef4678e9f341199bcb5f8deafbe6bfab/mydht/src/procs/mainloop.rs</a> line 291) we still got :</p>
+
+<pre><code>error[E0277]: the trait bound `std::rc::Rc&lt;mydht_basetest::node::Node&gt;: std::marker::Send` is not satisfied in `procs::server2::ReadService&lt;test::mainloop::TestLocalConf&gt;`
+   --&gt; src/test/mainloop.rs:658:6
+    |
+658 | impl MyDHTConf for TestLocalConf {
+    |      ^^^^^^^^^ `std::rc::Rc&lt;mydht_basetest::node::Node&gt;` cannot be sent between threads safely
+    |
+    = help: within `procs::server2::ReadService&lt;test::mainloop::TestLocalConf&gt;`, the trait `std::marker::Send` is not implemented for `std::rc::Rc&lt;mydht_basetest::node::Node&gt;`
+    = note: required because it appears within the type `mydht_base::utils::RcRef&lt;mydht_basetest::node::Node&gt;`
+    = note: required because it appears within the type `procs::server2::ReadService&lt;test::mainloop::TestLocalConf&gt;`
+    = note: required because of the requirements on the impl of `mydht_base::service::Spawner&lt;procs::server2::ReadService&lt;test::mainloop::TestLocalConf&gt;, procs::server2::ReadDest&lt;test::mainloop::TestLocalConf&gt;, mydht_base::service::DefaultRecv&lt;procs::server2::ReadCommand, mydht_base::service::MpscReceiverRef&lt;procs::server2::ReadCommand&gt;&gt;&gt;` for `mydht_base::service::ThreadPark`
+</code></pre>
+
+<p>Obviously changing the channel was not enough because its type does not match our ThreadPark spawn. Our thread park spawner also requires content to be Send.<br />
+Also, when spawning a service, a command can be use as first parameter (optional command input in spawn function), letting us run some use case as in localproxyglobal&rsquo;s macro where the service is running with a dummy Channel input and spawning parameter for a single iteration (like a function call). With this usecase, service must be restarted for each new command (service handle indicate that it is finished after its only iteration and service state is use to restart from handle). This usecase also required restart of finished service to be implemented (I may have been lazy on many restart it is plugged in write service and local service at least).</p>
+
+<p>So, the need for sendable content is also true for the Service itself, when starting and restarting from finished handle, the state containing the service itself is send. So SRef must also be implemented for our service, especially those containing our Ref&lt;P&gt; implementation (eg &lsquo;me&rsquo; field of most for most of the services).</p>
+
+<p>Consequently the ThreadPark spawn need to use a Send command and similarily to what we did with channel we will use a spawner variant, &lsquo;ThreadParkRef&rsquo; which is going to use the associated sendable variant of our service when spawning the new thread. Then before looping over the iteration of our service call, our type is wrapped back as an RcRef.</p>
+
+<p>In fact, with this approach all Send requirement are more or less replaced by SRef (in service, receiver and sender). Some difficulties occured within some service fields : for instance query cache of kvstore can not easily be sendable when it contains Rc (heavy copy needed) : in this case it was simply not send in the variant and initiated at service start similarily to kvstore storage (boxed initializer), this lazy choice invalidates cache for restart and a proper SRef implementation is required (but not really suitable).</p>
+
+<p>Similarilly, returning result abstraction &lsquo;ApiResult&rsquo; could contains an ArcRef. Another trait implementation will be use to return the SRef::Send : &lsquo;ApiResultRef&rsquo;.
+The further we go with implementation and the more it looks like SRef usage globally could be a good idea.</p>
+
+<p>At this time we only do it for Ref<Peer> as it is the most commonly use SRef in MyDHT, but custom Global and Local service message could contain such Ref and others Ref should be added in MyDHT. The challenge byte vec (unknown size out of implementation) for authentication should possibly be SRef, yet it does not make sense as it does not require to be clone (and Vec&lt;u8&gt; is already sendable).</p>
+
+<p>After changing to ThreadParkRef it finally compiles and test pass.
+As a result, &lsquo;test_connect_all_local&rsquo; is configured to mainly use threads but ran with Rc&lt;Peer&gt; instead of Arc&lt;Peer&gt;, see <a href="https://github.com/cheme/mydht/blob/bd098eadba760f2aaa496dfc96f6c3a9e22293de/mydht/src/test/mainloop.rs">https://github.com/cheme/mydht/blob/bd098eadba760f2aaa496dfc96f6c3a9e22293de/mydht/src/test/mainloop.rs</a> at line 676.</p>
+
+<p>I did cheat a bit on order of errors, first is Spawner then Channel, but it was simplier blogging in this order.</p>
+
+<p>So what did we do ? Just changing MyDHT internal usage of Arc for peers to Rc usage while staying in a highly multithreaded environment.</p>
+
+<p>What&rsquo;s next? Obliteration of those threads because non blocking IO allows it.</p>
+
+<h2 id="removing-some-threads">Removing some threads</h2>
+
+<p>Next step will be easiest : changing some services to run in the same thread as the main loop service. Please note that this is only possible if the transport is asynchronous, for synch/blocking transport there is a lot of thread restrictions (plus tricks that I may describe in a future post).</p>
+
+<h3 id="a-statefull-service">a statefull service</h3>
+
+<p>&lsquo;Api&rsquo; is a single service that stores Api queries (query requires a unique id for its matching reply) and forwards replies into &lsquo;ApiReturn&rsquo; abstraction. Currently there is no suitable &lsquo;ApiReturn&rsquo; implementation (an old synch struct is used to adapt old blocking test cases), some needs to be implemented (for C as single blocking function, for Rust as single blocking function, for rust as Future, not ipc as &lsquo;MainLoopChannelOut&rsquo; seems enough for this case&hellip;).<br />
+&lsquo;Api&rsquo; is a non mandatory service (a MyDHTConf trait boolean associated constant is used to switch result to MainLoopChannelOut when Api Query management is unneeded : the management can be external by simply listing on a result channel (unordered results)), it does not suspend (yield) on anything except its receiving message queue : it is easy to see that suspending is statefull in this case (cache is include in the service struct and message handling is out of call function so it is highly unprobable that some of this function inner state is needed).</p>
+
+<p>The marker trait &lsquo;ServiceRestartable&rsquo; is used for this kind of service, it indicates that when Yielding/suspending we can simply end the service and store the state (service struct and current channels) in the handle. When yielding back the handle can simply restart the service from its state.</p>
+
+<pre><code class="language-rust">impl&lt;MC : MyDHTConf,QC : KVCache&lt;ApiQueryId,(MC::ApiReturn,Instant)&gt;&gt; ServiceRestartable for Api&lt;MC,QC&gt; { }
+</code></pre>
+
+<p>It does not mean that we can restart the service after it is finished (max iteration reached or ended with command), naming is confusing.</p>
+
+<p>An example of local spawner implementation with a suspend/restart strategy is &lsquo;RestartOrError&rsquo; :</p>
+
+<pre><code class="language-rust">impl&lt;S : Service + ServiceRestartable, D : SpawnSend&lt;&lt;S as Service&gt;::CommandOut&gt;, R : SpawnRecv&lt;S::CommandIn&gt;&gt; Spawner&lt;S,D,R&gt; for RestartOrError {
+  type Handle = RestartSameThread&lt;S,D,Self,R&gt;;
+  type Yield = NoYield;
+</code></pre>
+
+<p>Its handle is &lsquo;RestartSameThread&rsquo;, an enum containing the handle state (ended or yielded, no running state as not possible over a single thread without coroutine or local context switch) and the service state (service struct and its channels plus iteration counter). Interesting point is that it also contains the spawner for restart (in our case our spawner is the 0 length struct &lsquo;RestartOrError&rsquo;).</p>
+
+<p>Its yield is a dummy &lsquo;NoYield&rsquo; simply returning &lsquo;YieldReturn::Return&rsquo; (meaning that yield calling function must &lsquo;wouldblock&rsquo; error return) so that the spawner just prepare for return/suspend (fill handle with state) and exit.</p>
+
+<p>We simply change the following lines :</p>
+
+<pre><code class="language-rust">  // type ApiServiceSpawn = ThreadParkRef;
+  type ApiServiceSpawn = RestartOrError;
+</code></pre>
+
+<p>and</p>
+
+<pre><code class="language-rust">  fn init_api_spawner(&amp;mut self) -&gt; Result&lt;Self::ApiServiceSpawn&gt; {
+    //Ok(ThreadParkRef)
+    Ok(RestartOrError)
+  }
+</code></pre>
+
+<p>We can see that initialisation function (&lsquo;init_api_spawner&rsquo;) is using MyDhtConf as mutable reference. This choice allows more complex spawner usage, for instance if we want to use a threadpool, the initialized pool reference may be include in some Arc Mutex and cloned into every spawners.</p>
+
+<p>Compiles and run pass, nice.</p>
+
+<p>Still, we did not change the channel, we still use</p>
+
+<pre><code class="language-rust">  type ApiServiceChannelIn = MpscChannelRef;
+</code></pre>
+
+<p>Useless, our api service is now on the same thread as main loop. We can send command localy by using LocalRcChannel (internally Rc&lt;RefCell&lt;VecDeque&lt;C&gt;&gt;&gt;).</p>
+
+<pre><code class="language-rust">  //type ApiServiceChannelIn = MpscChannelRef;
+  type ApiServiceChannelIn = LocalRcChannel;
+</code></pre>
+
+<p>and</p>
+
+<pre><code class="language-rust">  fn init_api_channel_in(&amp;mut self) -&gt; Result&lt;Self::ApiServiceChannelIn&gt; {
+//    Ok(MpscChannelRef)
+    Ok(LocalRcChannel)
+  }
+</code></pre>
+
+<p>Alternatively an unsafe single value buffer should be fine as currently we unyield on each send of command.
+That is not strictly mandatory so we keep the generic safe VecDeque choice (optimizing this way is still doable but low value in our case).
+Ideally &lsquo;NoChannel&rsquo; (disabled channel struct) should be use but it requires to change unyield function to allow an optional command (currently this could be good as we systematically unyield on each send).</p>
+
+<p>When looking at this restart handle associated types we observe :</p>
+
+<pre><code class="language-rust">impl&lt;S : Service + ServiceRestartable,D : SpawnSend&lt;&lt;S as Service&gt;::CommandOut&gt;, R : SpawnRecv&lt;S::CommandIn&gt;&gt;
+  SpawnHandle&lt;S,D,R&gt; for 
+  RestartSameThread&lt;S,D,RestartOrError,R&gt; {
+  type WeakHandle = NoWeakHandle;
+  ...
+
+  #[inline]
+  fn get_weak_handle(&amp;self) -&gt; Option&lt;Self::WeakHandle&gt; {
+    None
+  }
+</code></pre>
+
+<p>The weakhandle is a dummy type (also true for others non threaded spawner handles), never returned.<br />
+This illustrates the way message passing will switch when changing spawner : without weak handle the other services (eg &lsquo;GlobalDest&rsquo; containing optional api HandleSend) will send ApiCommand to MainLoop which will proxy it (same thread as api), with a WeakHande like previously, the other service can send directly (cf optional weakhandle for spawn handle in previous post).</p>
+
+<p>The weakhandle is stored in (with a sender) the dest of other service, for instance :</p>
+
+<pre><code class="language-rust">pub struct GlobalDest&lt;MC : MyDHTConf&gt; {
+  pub mainloop : MainLoopSendIn&lt;MC&gt;,
+  pub api : Option&lt;ApiHandleSend&lt;MC&gt;&gt;,
+}
+</code></pre>
+
+<p>Thinking back about this for api, it looks quite suitable : close to having the query cache in the mainloop and calling a looping function on it, but not costless (inlining everything is theorically fine for service stored in yield handle, even not inline cache implementation is probably already on heap, same for message waiting in channel). Main bad thing is the use of a channel (a simple vecdeque here) for passing command : to be closest to a function call we could simply use a &lsquo;Blocker&rsquo; spawner with a single iteration limit : use of &lsquo;localproxyglobal&rsquo; macro in our test is an example.</p>
+
+<h3 id="a-non-statefull-service">a non statefull service</h3>
+
+<p>For some service previous strategy could not be use as some state could not be restore on unyield (the service unyielding on other events than the channel call). That is the default case (no &lsquo;RestartSameThread&rsquo; marker).<br />
+For read or write service, this is related to the fact that reading is streamed inside of the serializer : we cannot save the state of the serializer/deserializer due to the way we serialize/deserialize directly from the streams.<br />
+For reference Read service gets the message through the &lsquo;MsgEnc&rsquo; trait method &lsquo;decode_msg_from&rsquo; :</p>
+
+<pre><code class="language-rust">  fn decode_msg_from&lt;R : Read&gt;(&amp;self, &amp;mut R) -&gt; MDHTResult&lt;M&gt;;
+</code></pre>
+
+<p>We do not get message directly by reading on a reader which returns &lsquo;WouldBlock&rsquo; if we need to yield, if it was the case it would be easy to put the Read stream in a service field and state will be save.<br />
+The problem is that our Read stream is a composition of blocking oriented read traits and the lower level transport read is not : therefore when the lower level transport Read return a WouldBlock error (meannig that we should yield) the CompExt should be implemented in a way that reading could restart (doable).
+Biggest issue is that the serializer (generally a serde backend) used for the implementation of MsgEnc would requires to be resumable on a &lsquo;WouldBlock&rsquo; error (not the case at the moment I think or at least for the majority of implementation).</p>
+
+<p>Therefore, the strategy for yielding on Asynch Read/Write is to use a CompExt layer (composition) over the transport stream, the layer will catch &lsquo;WouldBlock&rsquo; Error and Yield on it (no support of statefull suspend with YieldReturn::Return).
+CompExt used are :</p>
+
+<pre><code class="language-rust">pub struct ReadYield&lt;'a,R : 'a + Read,Y : 'a + SpawnerYield&gt; (pub &amp;'a mut R,pub &amp;'a mut Y);
+</code></pre>
+
+<p>and</p>
+
+<pre><code class="language-rust">pub struct WriteYield&lt;'a,W : 'a + Write, Y : 'a + SpawnerYield&gt; (pub &amp;'a mut W, pub &amp;'a mut Y);
+</code></pre>
+
+<p>For threaded spawn, like a thread pool or ThreadPark, the thread simply park (block on a condvar) and resume later through its yield handle resume (unlock condvar).
+For local spawn, we need to use a CoRoutine : with CoRoutine spawner (using coroutine crate), the coroutine state does include all inner states (even possible Serde backend implementation) and we can suspend at WriteYield/ReadYield level (using YieldReturn::Loop strategy).</p>
+
+<p>Lets adapt write service.</p>
+
+<pre><code class="language-rust">  //type WriteChannelIn = MpscChannelRef;
+  type WriteChannelIn = LocalRcChannel;
+  //type WriteSpawn = ThreadParkRef;
+  type WriteSpawn = CoRoutine;
+</code></pre>
+
+<p>Note that with a blocking (synch) write stream, write service could allow suspend (coroutine is useless as statefull), and mydht will still run with an impact depending on transport (for many transport is not a major issue if not threaded). For blocking ReadStream suspending only on message input (blocking transport case) is a huge issue (thread simply blocks on reading and if nothing is received mydht instance is stuck).</p>
+
+<p>Also note that keeping an MpscChannelRef (or a MpscChannel if using ArcRef&lt;Peer&gt;) could still make sense to enable direct message sending to write service through its weak send and handle (but it would also require that CoRoutine implements a WeakHandle (which is currently not the case : it would requires to run a shared mutex over the handle and would be a different usecase)).</p>
+
+<p>Last point, the number of iteration should be unlimited or high to avoid to much coroutine creation.</p>
+
+<pre><code class="language-rust">  //const SEND_NB_ITER : usize = 1;
+  const SEND_NB_ITER : usize = 0; // 0 is unlimited run
+</code></pre>
+
+<p>Applying this change to read is way more interesting (infinite service with really recurring suspend on Read transport stream) and run as smoothly :</p>
+
+<pre><code class="language-rust">  type ReadChannelIn = LocalRcChannel;
+  type ReadSpawn = Coroutine;
+</code></pre>
+
+<h3 id="a-blocking-service">a blocking service</h3>
+
+<p>Already seen before, macro &lsquo;localproxyglobal&rsquo; used in this test conf is an example of a local service call that does not yield (&lsquo;Blocker&rsquo; spawner), with a single iteration and no channel.
+The service is spawn at each time like a function call (optional command is set) and never suspends.</p>
+
+<pre><code class="language-rust">#[macro_export]
+macro_rules! localproxyglobal(() =&gt; (
+  type GlobalServiceCommand = Self::LocalServiceCommand;
+  type GlobalServiceReply  = Self::LocalServiceReply;
+  type LocalService = DefLocalService&lt;Self&gt;;
+  const LOCAL_SERVICE_NB_ITER : usize = 1;
+  type LocalServiceSpawn = Blocker;
+  type LocalServiceChannelIn = NoChannel;
+  #[inline]
+  fn init_local_spawner(&amp;mut self) -&gt; Result&lt;Self::LocalServiceSpawn&gt; {
+    Ok(Blocker)
+  }
+  #[inline]
+  fn init_local_channel_in(&amp;mut self) -&gt; Result&lt;Self::LocalServiceChannelIn&gt; {
+    Ok(NoChannel)
+  }
+  #[inline]
+  fn init_local_service(me : Self::PeerRef, with : Option&lt;Self::PeerRef&gt;) -&gt; Result&lt;Self::LocalService&gt; {
+    Ok(DefLocalService{
+      from : me,
+      with : with,
+    })
+  }
+));
+</code></pre>
+
+<p>For this kind of configuration, the service must always be call with an initial command input, the service must be restarted when its handle indicates that the service is finished.</p>
+
+<p>At the time, I&rsquo;ve been a bit lazy on writing restart service code, truth is I am not really convinced by its usefulness (the number of iteration criterion is not really good, some time limit may be better). Still, it is done in for this case, local service spawning from a read service spawning from mainloop service initiated from mydhtconf.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>There is still 3 threads (global service, peerstore service and the mainloop), two being the same use case as Api service (single service from mainloop) and the last required to test on multiple peers without having to change the test method.</p>
+
+<p>SRef seems interesting, yet it absolutely requires some macro derivability, it is an ok addition to the &lsquo;Send&rsquo; marker trait.
+I considered removing all &lsquo;Send&rsquo; dependant implemention and keeping only the &lsquo;SRef&rsquo; ones, plus maybe changing service base type to always use SRef variants (Send variants becoming useless). Obviously ArcRef and CloneRef SRef implemetation replacing the previous use case (for all thread we only need the kind of sref constrainted config that was describe for running RcRef over threads).<br />
+<a href="https://github.com/rust-lang/rust/issues/42763">https://github.com/rust-lang/rust/issues/42763</a> seems pretty bad with this SRef abstraction, same with almost all spawner, but I think it needs to be checked.<br />
+If putting Service in its own crate, Clone and Send constrained implementation of spawner and channels are still interesting to avoid global SRef usage.</p>
+
+      </div>
+    </article>
+    <aside class="ph3 mt2 mt6-ns">
+      
+
+
+
+
+
+
+
+  <div class="bg-light-gray pa3">
+    <ul>
+      <li class="list b mb3">
+        1 More Posts
+      </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process2/" class="link ph2 pv2 db black o-50">
+            MyDHT service usage switch (part 2)
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process1/" class="link ph2 pv2 db black">
+            MyDHT Refactoring And Threading (part 1)
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+    </aside>
+  </div>
+
+    </main>
+    <footer class="bg-near-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://cheme.github.io/" >
+    &copy; 2017 Émeric misexperiment blog
+  </a>
+  
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+  </div>
+</footer>
+
+    <script src="https://cheme.github.io/dist/app.bundle.js" async></script>
+
+  </body>
+</html>
