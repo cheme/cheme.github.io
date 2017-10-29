@@ -1,7 +1,7 @@
 ---
-title: "Process1"
+title: "MyDHT Refactoring And Threading (part 1)"
 date: 2017-10-22T10:56:08+02:00
-draft: true
+draft: false
 categories: 
   - "MyDHT"
   - "rust"
@@ -11,7 +11,6 @@ tags:
   - "design"
   - "rust"
 ---
-# MyDHT Refactoring And Threading (part 1)
 
 Lastly I got some time in my hand (ended my previous job and looking for more low level programming) to refactor some pretty terrible old project of mine.
 
@@ -139,8 +138,8 @@ An example of direct call from service is when Read transport stream being async
 
 Suspend can result in two behavior :
 
-- YieldReturn::Return : the state is stored in service and we exit from execution (will be restore later from handle)
-- YieldReturn::Loop : the Yield and spawn lead to a context switch and Unyield will pursue exection at this point so in this case we only need to redo the command which leads to suspend.
+-YieldReturn::Return : the state is stored in service and we exit from execution (will be restore later from handle)  
+-YieldReturn::Loop : the Yield and spawn lead to a context switch and Unyield will pursue exection at this point so in this case we only need to redo the command which leads to suspend.
 
 
   * Handle
@@ -169,7 +168,7 @@ pub trait SpawnUnyield {
 
   In my previous implementation, having spend sometime doing few haskell, I tend to confuse a reference with an immutable object and force the Sync trait at many place (on peer and keyval at least) by considering those value to be read only (they are and a change in Peer address should be propagated to all process (currently it looks more robust on this point)), but that is kinda wrong.
 
-  Switching reference was also needed, with a local spawner (when we spawn without new thread) we do not require KeyVal or Peer to be 'Send' and 'Arc' default usage was useless : we defines Ref<P> and SRef traits.
+  Switching reference was also needed, with a local spawner (when we spawn without new thread) we do not require KeyVal or Peer to be 'Send' and 'Arc' default usage was useless : we defines Ref\<P\> and SRef traits.
 
 ```rust
 pub trait Ref<T> : SRef + Borrow<T> {
@@ -190,10 +189,10 @@ pub trait SToRef<T : SRef> : Send + Sized {
   fn to_ref(self) -> T;
 }
 ```
-Basically SRef is similar to Into<Send> but with a single associated type and a way back.
+Basically SRef is similar to Into\<Send\> but with a single associated type and a way back.
 
 
-## Consequence on design
+## Consequences on design
 
   This service abstraction makes it even clearer that MyDHT is not a DHT. With previous design we had to create some strange 'key' trait for executing some strange 'store' action in some strange 'keyval storage' (eg old broken mydht-wot web of trust crate) : it was almost obvious that we could replace 'Key' by 'Query' and 'KeyVal' by Reply.
   Therefore this time we do not use an explicit 'keyval' Store but a global service with messages. Code from previous design is ported to the a KVStoreService which when use as GlobalService is almost the same as previous storage of KeyVal. This service implementation is not in an external crates because it is also the default peer storage/exchange implementation.
