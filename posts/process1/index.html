@@ -136,16 +136,16 @@ Previous design The initial purpose of MyDHT project was to design a library to 
 Before redesign, it finally was a HashTable only if using a right Routing implementation (eg mydht-btkad (currently broken)).<br />
 Final goal was at the time to implement web of trust application upon this technical brick (some testing with broken mydht-wot).</p>
 
-<p>At the time I was less aware of asynch transport and used only standard rust api (blocking transport) :
-- a transport trait based upon rust tcp synch api, but with some very odd design. The odd design let me run it on udp with dirty tricks (reader containing the udp frame and read thread running from start on every one). I also give some attempt to use mio (asynch transport) but using it under this design had very few advantages and I dropped it when the coroutine crate I used at the time becames deprecated.
-So we got a read stream and a write stream : we allow unidirectionnal transport with one socket sending to dest peer and one other socket receiving from dest peer, but we also allow using the same socket depending on transport implementation (internally both read and write stream can use the same tcp socket and be spawn at the same time in transport)
-- a peer abstraction (related to transport listening address obviously)
-- a keyval abstraction for content to be share (peer being obviously a keyval)
-- the encoding/decoding of Key Value was using Rust standard serialize abstraction which I switch to serde with my refacto. It allows many type of exchanges (actually test case runs only over json and binary (bincode crate)).
-- authentication scheme was broken (udp implementation was allowed by it) : with only two messages called ping and pong leading to a potential dos replay attack, new scheme run with ping - pong - pong (three message).
-- rules were overly complicated and ill designed (it stay true but limited to kvstore service now)
-- some shadowing mechanism where implemented (refacto was done to use my &lsquo;readwrite-comp&rsquo; lib which was totally inspired by this) allowing some forms of encryption over transport.
-- keyval and peer storage trait with cache trait and query cache trait, quite a mess by looking back, still have to redesign that
+<p>At the time I was less aware of asynch transport and used only standard rust api (blocking transport) :<br />
+- a transport trait based upon rust tcp synch api, but with some very odd design. The odd design let me run it on udp with dirty tricks (reader containing the udp frame and read thread running from start on every one). I also give some attempt to use mio (asynch transport) but using it under this design had very few advantages and I dropped it when the coroutine crate I used at the time becames deprecated.<br />
+So we got a read stream and a write stream : we allow unidirectionnal transport with one socket sending to dest peer and one other socket receiving from dest peer, but we also allow using the same socket depending on transport implementation (internally both read and write stream can use the same tcp socket and be spawn at the same time in transport)<br />
+- a peer abstraction (related to transport listening address obviously)<br />
+- a keyval abstraction for content to be share (peer being obviously a keyval)<br />
+- the encoding/decoding of Key Value was using Rust standard serialize abstraction which I switch to serde with my refacto. It allows many type of exchanges (actually test case runs only over json and binary (bincode crate)).<br />
+- authentication scheme was broken (udp implementation was allowed by it) : with only two messages called ping and pong leading to a potential dos replay attack, new scheme run with ping - pong - pong (three message).<br />
+- rules were overly complicated and ill designed (it stay true but limited to kvstore service now)<br />
+- some shadowing mechanism where implemented (refacto was done to use my &lsquo;readwrite-comp&rsquo; lib which was totally inspired by this) allowing some forms of encryption over transport.<br />
+- keyval and peer storage trait with cache trait and query cache trait, quite a mess by looking back, still have to redesign that<br />
 - Route trait to decide which peers to query, same still need some redesign</p>
 
 <p>The schema bellow gives an idea of the running threads :</p>
