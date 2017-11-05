@@ -32,7 +32,7 @@
 
 
 
-<meta property="og:updated_time" content="2017-10-29T10:14:08&#43;02:00"/>
+<meta property="og:updated_time" content="2017-11-05T10:14:08&#43;02:00"/>
 
 
 
@@ -123,6 +123,22 @@
   <div class="bg-white mb3 pa4 gray overflow-hidden">
     <span class="f6 db">Posts</span>
     <h1 class="f3 near-black">
+      <a href="/posts/sync_transport/" class="link black dim">
+        Allowing both blocking and non-blocking transport
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
+Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error).
+    </div>
+  </div>
+</div>
+
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
       <a href="/posts/process2/" class="link black dim">
         MyDHT service usage switch (part 2)
       </a>
@@ -205,6 +221,22 @@ Previous design The initial purpose of MyDHT project was to design a library to 
   <div class="bg-white mb3 pa4 gray overflow-hidden">
     <span class="f6 db">Posts</span>
     <h1 class="f3 near-black">
+      <a href="/posts/sync_transport/" class="link black dim">
+        Allowing both blocking and non-blocking transport
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
+Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error).
+    </div>
+  </div>
+</div>
+
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
       <a href="/posts/process2/" class="link black dim">
         MyDHT service usage switch (part 2)
       </a>
@@ -246,6 +278,22 @@ Previous design The initial purpose of MyDHT project was to design a library to 
   <div class="bg-white mb3 pa4 gray overflow-hidden">
     <span class="f6 db">Posts</span>
     <h1 class="f3 near-black">
+      <a href="/posts/sync_transport/" class="link black dim">
+        Allowing both blocking and non-blocking transport
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
+Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error).
+    </div>
+  </div>
+</div>
+
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
       <a href="/posts/process2/" class="link black dim">
         MyDHT service usage switch (part 2)
       </a>
@@ -271,6 +319,29 @@ All changes describe are on &lsquo;MyDHTConf&rsquo; trait implementation for &ls
 Even if the refactor is far from complete, the design and its primo implementation is.
 This post focus on MyDHT redesign,
 Previous design The initial purpose of MyDHT project was to design a library to run a distributed hash table. It evolves to key value peer to peer info exchange with multi-hop request proxying (query proxyied to none connected peers).
+    </div>
+  </div>
+</div>
+
+        
+      
+        <h2 class="f1">
+          <a href="/tags/tcp" class="link blue hover-black">
+            Tag: tcp
+          </a>
+        </h2>
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
+      <a href="/posts/sync_transport/" class="link black dim">
+        Allowing both blocking and non-blocking transport
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
+Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error).
     </div>
   </div>
 </div>

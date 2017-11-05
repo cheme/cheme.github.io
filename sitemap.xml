@@ -3,6 +3,13 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://cheme.github.io/posts/sync_transport/</loc>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://cheme.github.io/posts/process2/</loc>
     <lastmod>2017-10-29T10:14:08+02:00</lastmod>
     <changefreq>monthly</changefreq>
@@ -24,14 +31,14 @@
   
   <url>
     <loc>https://cheme.github.io/tags/design/</loc>
-    <lastmod>2017-10-29T10:14:08+02:00</lastmod>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://cheme.github.io/categories/mydht/</loc>
-    <lastmod>2017-10-29T10:14:08+02:00</lastmod>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0</priority>
   </url>
@@ -45,42 +52,49 @@
   
   <url>
     <loc>https://cheme.github.io/posts/</loc>
-    <lastmod>2017-10-29T10:14:08+02:00</lastmod>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://cheme.github.io/tags/programming/</loc>
-    <lastmod>2017-10-29T10:14:08+02:00</lastmod>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://cheme.github.io/tags/rust/</loc>
-    <lastmod>2017-10-29T10:14:08+02:00</lastmod>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://cheme.github.io/categories/rust/</loc>
-    <lastmod>2017-10-29T10:14:08+02:00</lastmod>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://cheme.github.io/tags/</loc>
-    <lastmod>2017-10-29T10:14:08+02:00</lastmod>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://cheme.github.io/tags/tcp/</loc>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://cheme.github.io/</loc>
-    <lastmod>2017-10-29T10:14:08+02:00</lastmod>
+    <lastmod>2017-11-05T10:14:08+02:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0</priority>
   </url>

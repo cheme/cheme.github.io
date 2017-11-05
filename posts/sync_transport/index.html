@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Émeric misexperiment blog  | Allowing both blocking and non-blocking transport</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="generator" content="Hugo 0.26" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    <link href='https://cheme.github.io/dist/main.css' rel='stylesheet' type="text/css" />
+    
+      
+    
+
+    
+
+    <meta property="og:title" content="Allowing both blocking and non-blocking transport" />
+<meta property="og:description" content="initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
+Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error)." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://cheme.github.io/posts/sync_transport/" />
+
+
+
+<meta property="article:published_time" content="2017-11-05T10:14:08&#43;02:00"/>
+<meta property="article:modified_time" content="2017-11-05T10:14:08&#43;02:00"/>
+
+
+
+
+
+
+
+
+
+
+
+<meta itemprop="name" content="Allowing both blocking and non-blocking transport">
+<meta itemprop="description" content="initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
+Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error).">
+
+
+<meta itemprop="dateModified" content="2017-11-05T10:14:08&#43;02:00" />
+<meta itemprop="wordCount" content="1942">
+
+
+
+<meta itemprop="keywords" content="programming,design,rust,tcp," />
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Allowing both blocking and non-blocking transport"/>
+<meta name="twitter:description" content="initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
+Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error)."/>
+
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://cheme.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      Émeric misexperiment blog
+    </a>
+    <div class="flex-l items-center">
+      
+      
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+  <div class="flex-l mt2 mw8 center">
+    <article class="center cf pv5 ph3 ph4-ns mw7">
+      <header>
+        <p class="f6 b helvetica tracked">
+          POSTS
+        </p>
+        <h1 class="f1">
+          Allowing both blocking and non-blocking transport
+        </h1>
+      </header>
+      <div class="nested-copy-line-height lh-copy f4 nested-links nested-img mid-gray">
+        
+
+<h1 id="initial-non-blocking-implementation">initial non blocking implementation</h1>
+
+<p>In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.<br />
+Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error).</p>
+
+<p>In the mainloop a slab is used to manage all open stream with their states and pending messages.</p>
+
+<p>Service wise, connection being asynch are called directly from the mainloop, and read/write stream listen/write from a suspendable service (suspend on WouldBlock is done through ReadYield and WriteYield stream composition (see previous blog)).</p>
+
+<p>Service abstraction means that it can be (depending on mydht conf inner traits) from a suspendable thread, or from a coroutine, or from a local statefull function call (in fact for read and write it use the statefull case eg in previous post), other service strategy could be think of but not yet implemented.</p>
+
+<p>So using non blocking transport approach all is fine. Yet I got this nice (not so nice in fact) test transport implementation from when mydht ran with blocking transport and all my old testcase with it are broken. Also, what if I want to fast design a transport or use a transport that do not implement non blocking primitive.</p>
+
+<p>It might be nice to still allow blocking transport usage (connection and stream not registered on the mainloop event poll and primitives not returning &lsquo;wouldblock&rsquo;).</p>
+
+<h1 id="first-idea">first idea</h1>
+
+<p>Easy, just implement a composition transport (adapter) containing the blocking transport and changing it to non blocking one (the inverse of what I did in previous mydht implementation for using a mio tcp stream in blocking transport implementation); just run every stream in their own thread and after operation end trigger a registration to mio loop mainloop so that mydht know it can read from the share buffer.<br />
+Wait, it means that I need to thread (I can use service internally) over reader and connection listener from this generic transport implementation. I would need to share their read result with the read service in other threads (shared mem or message), transmit asynch mydht connection to this transport and register on connect (plus send synch stream to composing stream).<br />
+Doable, yet duplicating read service felt wrong (read service from adapter and read service linked to mio loop), especially since the transport one must run in a internal thread and the loop one may also require a thread (if local service is heavy or if deserializing is seen as costy eg if writing attachment in a file).</p>
+
+<p>Finally we should simply make transport abstraction compatible with both paradigm, let mydht be able to run with both.</p>
+
+<h1 id="new-transport-traits">New transport traits</h1>
+
+<h2 id="transport">Transport</h2>
+
+<pre><code class="language-rust">pub trait Transport : Send + Sync + 'static + Registerable {
+  type ReadStream : ReadTransportStream;
+  type WriteStream : WriteTransportStream;
+  type Address : Address;
+  fn accept(&amp;self) -&gt; Result&lt;(Self::ReadStream, Option&lt;Self::WriteStream&gt;)&gt;;
+  fn connectwith(&amp;self, &amp;Self::Address) -&gt; IoResult&lt;(Self::WriteStream, Option&lt;Self::ReadStream&gt;)&gt;;
+  fn disconnect(&amp;self, &amp;Self::Address) -&gt; IoResult&lt;bool&gt; { Ok(false) }
+}
+</code></pre>
+
+<p>Transport is managing readwrite stream, being both a connection listener (fn accept) and a the way to connect to (fn connectwith).</p>
+
+<p>Disconnect method is currently unused and should be remove (remnant of old design where transport was able to spawn read service).<br />
+Synch constraint is also a remnant and is useless in mainloop approach, yet with next Synch transport thread it is still needed : for synch transport I think we should run a mutex adapter for it (we already did it with an Arc in this case).<br />
+Send constraint could be remove and switch to a service spawner SRef or Send constraint.</p>
+
+<p>The &lsquo;accept&rsquo; and &lsquo;connectwith&rsquo; returns a single stream or both read and write stream, it depends on transport implementation : for instance with tcp we generally will use the same socket and both will be return, for other context we may have unidirectional handle (for instance a transport using a route that change with every calls in an non authenticated mydht).</p>
+
+<h2 id="registration">Registration</h2>
+
+<pre><code class="language-rust">pub trait Registerable {
+  fn register(&amp;self, &amp;Poll, Token, Ready, PollOpt) -&gt; Result&lt;bool&gt;;
+  fn reregister(&amp;self, &amp;Poll, Token, Ready, PollOpt) -&gt; Result&lt;bool&gt;;
+}
+</code></pre>
+
+<p>This trait allows registration on mio loop (basically same as mio register), the interesting point is that it is not mandatory : it returns &lsquo;Ok(false)&rsquo; if we did not register meaning that synch/blocking code need to be use.<br />
+If nonblocking, Registration on previous &lsquo;Transport&rsquo; trait is for listening on connection (accept) and sending event when connection operation ends (connectwith).</p>
+
+<h2 id="streams">Streams</h2>
+
+<p>Stream traits are not really asynch they simply (cf tcp c primitive) return a &lsquo;WouldBlock&rsquo; error when unavailable.</p>
+
+<pre><code class="language-rust">pub trait ReadTransportStream : Send + Read + 'static + Registerable {
+  fn disconnect(&amp;mut self) -&gt; Result&lt;()&gt;;
+
+</code></pre>
+
+<pre><code class="language-rust">pub trait WriteTransportStream : Send + Write + 'static + Registerable {
+  fn disconnect(&amp;mut self) -&gt; Result&lt;()&gt;;
+
+</code></pre>
+
+<p>Noticeable point is the Registerable constraint (optional mio registration) and Read/Write ones.
+Other than that it is same as blocking io (Read and Write trait are standard rust trait), so a blocking implementation simply need to never return &lsquo;wouldblock&rsquo; error and return false when registering.</p>
+
+<h1 id="blocking-transport-changes">Blocking transport changes</h1>
+
+<p>Using previous post schema, we need to add a few threads (we use service abstraction but with blocking IO many service required to run in separate threads) :</p>
+
+<p><img src="../../static/procs3.png" alt="newthreads" /></p>
+
+<p>New threads are used to manage connections. Those are synching with mainloop with message (service message) not by registering on loop (message receiver is in fact registered (single registration)).</p>
+
+<h2 id="connection-listener">Connection listener</h2>
+
+<p>When running mydht with test case, nothing goes well : connection between peers simply never occured because mainloop never listen for connection. Transport not being registered, &lsquo;accept&rsquo; method is never called (it is normally called when event is polled by mainloop).</p>
+
+<p>So we create a &lsquo;SynchConnectService&rsquo; that launch if registration of transport returns false (in &lsquo;init_state&rsquo; of MyDHTConf).<br />
+There is no need to disable this service when running with non blocking transport (it never spawn), but &lsquo;NoSpawn&rsquo; can be use as its spawner to be sure.</p>
+
+<p>The service implementation is really straight forward :</p>
+
+<pre><code class="language-rust">impl&lt;T : Transport&gt; Service for SynchConnListener&lt;T&gt; {
+  type CommandIn = SynchConnListenerCommandIn;
+  type CommandOut = SynchConnListenerCommandOut&lt;T&gt;;
+
+  fn call&lt;S : SpawnerYield&gt;(&amp;mut self, _req: Self::CommandIn, _async_yield : &amp;mut S) -&gt; Result&lt;Self::CommandOut&gt; {
+    match self.0.accept() {
+      Ok((rs,ows)) =&gt; {
+        return Ok(SynchConnListenerCommandOut::Connected(rs,ows));
+      },
+      // ignore error
+      Err(e) =&gt; error!(&quot;Transport accept error : {}&quot;,e),
+    }
+    Ok(SynchConnListenerCommandOut::Skip)
+  }
+}
+
+</code></pre>
+
+<p>Resulting connection is sent back to MainLoop through standard mainloop command (channel reception being registered on loop).</p>
+
+<pre><code class="language-rust">impl&lt;MC : MyDHTConf&gt; SpawnSend&lt;SynchConnListenerCommandOut&lt;MC::Transport&gt;&gt; for SynchConnListenerCommandDest&lt;MC&gt; {
+  const CAN_SEND : bool = true;
+  fn send(&amp;mut self, r : SynchConnListenerCommandOut&lt;MC::Transport&gt;) -&gt; Result&lt;()&gt; {
+    match r {
+      SynchConnListenerCommandOut::Connected(rs,ows) =&gt; {
+        self.0.send(MainLoopCommand::ConnectedR(rs,ows))?;
+      },
+      SynchConnListenerCommandOut::Skip =&gt; (),
+    };
+    Ok(())
+  }
+}
+</code></pre>
+
+<p>The new &lsquo;MainLoopCommand::ConnectedR&rsquo; message is returning similar info as with non blocing &lsquo;accept&rsquo; method call from mainloop and used as such.</p>
+
+<p>As with ReadService for blocking transport, this service required to run on a <strong>separate thread from MainLoop thread</strong>, because it will block without yielding/suspending.</p>
+
+<h2 id="connecting-with-other-peer">Connecting with other peer</h2>
+
+<p>Connection listener was not enough : &lsquo;connectwith&rsquo; method from transport is now taking time and would block up to possible timeout when there is no peer at the other side. So &lsquo;connectwith&rsquo; must run in another service (if nonblocking it is done in mainloop) : for that we run a pseudo-pool of service (on paper pooling should be done in the service spawner implementation but this is a cheap compromise) to connect.</p>
+
+<p>Similarily to connection listener, we use a message to send back connection to MainLoop.</p>
+
+<p>The service is as straight forward as for the listener.</p>
+
+<pre><code class="language-rust">impl&lt;T : Transport&gt; Service for SynchConnect&lt;T&gt; {
+  type CommandIn = SynchConnectCommandIn&lt;T&gt;;
+  type CommandOut = SynchConnectCommandOut&lt;T&gt;;
+
+  fn call&lt;S : SpawnerYield&gt;(&amp;mut self, req: Self::CommandIn, _async_yield : &amp;mut S) -&gt; Result&lt;Self::CommandOut&gt; {
+    let SynchConnectCommandIn(slab_ix,add) = req;
+    Ok(match self.0.connectwith(&amp;add) {
+      Ok((ws,ors)) =&gt; SynchConnectCommandOut::Connected(slab_ix,ws,ors),
+      Err(e) =&gt; {
+        debug!(&quot;Could not connect: {}&quot;,e);
+        SynchConnectCommandOut::Failure(slab_ix)
+      },
+    })
+  }
+}
+</code></pre>
+
+<p>On failure a error message is send : this lets the mainloop get rid of initial slab cache (a variant (no write stream) of standard unconnected slab cache state which bufferised message until connection is used) :</p>
+
+<pre><code class="language-rust">pub enum SlabEntryState&lt;T : Transport, RR, WR, WB,P&gt; 
+{
+...
+  WriteStream(T::WriteStream,WB),
+  WriteConnectSynch(WB),
+...
+}
+</code></pre>
+
+<p>So when connecting with another peer, we check if the transport was asynch. If it is we initialize cache and spawn or use one of the connection service. That is the same as with non blocking transport without the connection and stream being stored in slab cache.</p>
+
+<p>Mainloop on reception of the new &lsquo;MainLoopCommand::ConnectedW&rsquo; do a similar job as when transport Write become ready for the first time (switch slab state and spawn write service) with some significant variations for optional associated read stream.</p>
+
+<h2 id="read-and-write-stream">Read and Write Stream</h2>
+
+<p>For read and write stream usage a blocking transport is easier as we simply need not to yield (WouldBlock error is never returned) which is fine.</p>
+
+<p>So running it with current implementation only involves some dead code (service suspend on wouldblock and resume on event triggering), and the need for a conditional registration (which is ok with Registrable trait).</p>
+
+<p>It also means that we put our read/write service handle in slabcache. That is useless because we also use a peer cache in mainloop (peer in peer cache have reference for slabcache and handle in slabcache have reference of peer). The slab cache is related with token registration of non blocking transport. For blocking non registrable transport, the peer cache could simply containins both peer and read/write service handle (similar to previous mydht design), this is not the case and will not (maintanability), so the slabcache is use even if useless.</p>
+
+<p>A trait marker could be use to mark a transport stream as non blocking, then having spawner reference the transport and a trait constraint for it (similar to what we have with &lsquo;ServiceRestartable&rsquo; marker) could be nice.</p>
+
+<p>Yet there is currently no usage of transport by the spawner so I do not force this constraint and <strong>synch transport with non threaded service will block silently on reading</strong>.</p>
+
+<p>There may be some cool design where we include reference to component that may yield (transport having no sense for service abstraction) in spawner abstraction, but the service abstraction seems already a bit overly complex.</p>
+
+<p>Some code variation are needed when register return false on those stream :
+  - for read, if not registered the service is started immediatly, if registered the stream is put in slab cache until first ready event and then started
+  - for write the initial state connection in slab is set to connected and incomming write message will spawn write service (with asynch mode it is put in buffer (the service input channel) until write first ready event occurs).</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>The idea to run both kind of transport was here from the begining of mydht redesig but I totally overlooked the need for additional process to connect.</p>
+
+<p>The implementation is far from ideal due to :
+        - connect service pseudo-pool : in previous mydht implementation we connected from Write thread, here we don&rsquo;t, but we can notice that in an eventual transport redesign (change ref to mutable ref for easiest homemade transport implementing) it is ok.
+        - transport is not anymore only use by MainLoop but also by the connect pool and the connection listener thread, this makes it more difficult to change its trait (an optional synch mutex could be needed).
+        - mainloop useless cache organisation (both slab token indexed cache and peer key indexed cache)</p>
+
+<p>I still like it.</p>
+
+      </div>
+    </article>
+    <aside class="ph3 mt2 mt6-ns">
+      
+
+
+
+
+
+
+
+  <div class="bg-light-gray pa3">
+    <ul>
+      <li class="list b mb3">
+        2 More Posts
+      </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/sync_transport/" class="link ph2 pv2 db black o-50">
+            Allowing both blocking and non-blocking transport
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process2/" class="link ph2 pv2 db black">
+            MyDHT service usage switch (part 2)
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process1/" class="link ph2 pv2 db black">
+            MyDHT Refactoring And Threading (part 1)
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+    </aside>
+  </div>
+
+    </main>
+    <footer class="bg-near-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://cheme.github.io/" >
+    &copy; 2017 Émeric misexperiment blog
+  </a>
+  
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+  </div>
+</footer>
+
+    <script src="https://cheme.github.io/dist/app.bundle.js" async></script>
+
+  </body>
+</html>

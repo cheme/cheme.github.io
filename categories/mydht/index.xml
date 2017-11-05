@@ -6,10 +6,20 @@
     <description>Recent content in Mydht on Émeric misexperiment blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 29 Oct 2017 10:14:08 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 05 Nov 2017 10:14:08 +0200</lastBuildDate>
     
 	<atom:link href="https://cheme.github.io/categories/mydht/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Allowing both blocking and non-blocking transport</title>
+      <link>https://cheme.github.io/posts/sync_transport/</link>
+      <pubDate>Sun, 05 Nov 2017 10:14:08 +0200</pubDate>
+      
+      <guid>https://cheme.github.io/posts/sync_transport/</guid>
+      <description>initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
+Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&amp;ldquo;would block&amp;rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &amp;lsquo;would block&amp;rsquo; error).</description>
+    </item>
     
     <item>
       <title>MyDHT service usage switch (part 2)</title>
