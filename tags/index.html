@@ -9,7 +9,7 @@
     <meta name="MobileOptimized" content="320">
 
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="generator" content="Hugo 0.26" />
+    <meta name="generator" content="Hugo 0.30.2" />
     
     
       <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
@@ -32,7 +32,7 @@
 
 
 
-<meta property="og:updated_time" content="2017-11-05T10:14:08&#43;02:00"/>
+<meta property="og:updated_time" content="2017-11-12T11:06:08&#43;02:00"/>
 
 
 
@@ -118,6 +118,41 @@
             Tag: design
           </a>
         </h2>
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
+      <a href="/posts/tunnel_imp/" class="link black dim">
+        Implementing MyDHT tunnel
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).
+That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.
+This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream.
+    </div>
+  </div>
+</div>
+
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
+      <a href="/posts/tunnel/" class="link black dim">
+        Tunnel crate and MyDHT ?
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      In my previous post I described some aspects of MyDHT crate, basically a library to implement peer2peer application.
+In this post I will describe another crates, tunnel; then try to define how it will be used within MyDHT.
+Tunnel is a crate for experimenting with different kind of multi hop layered ciphering of content (similar to tor, maybe more like a multihop vpn).
+It defines the various traits for operations associated with this problematics : route building, peer proxying, message sending, peer receiving, peer replying.
+    </div>
+  </div>
+</div>
+
         
           <div class="relative w-100 mb4 bg-white nested-copy-line-height">
   <div class="bg-white mb3 pa4 gray overflow-hidden">
@@ -221,6 +256,41 @@ Previous design The initial purpose of MyDHT project was to design a library to 
   <div class="bg-white mb3 pa4 gray overflow-hidden">
     <span class="f6 db">Posts</span>
     <h1 class="f3 near-black">
+      <a href="/posts/tunnel_imp/" class="link black dim">
+        Implementing MyDHT tunnel
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).
+That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.
+This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream.
+    </div>
+  </div>
+</div>
+
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
+      <a href="/posts/tunnel/" class="link black dim">
+        Tunnel crate and MyDHT ?
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      In my previous post I described some aspects of MyDHT crate, basically a library to implement peer2peer application.
+In this post I will describe another crates, tunnel; then try to define how it will be used within MyDHT.
+Tunnel is a crate for experimenting with different kind of multi hop layered ciphering of content (similar to tor, maybe more like a multihop vpn).
+It defines the various traits for operations associated with this problematics : route building, peer proxying, message sending, peer receiving, peer replying.
+    </div>
+  </div>
+</div>
+
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
       <a href="/posts/sync_transport/" class="link black dim">
         Allowing both blocking and non-blocking transport
       </a>
@@ -273,6 +343,41 @@ Previous design The initial purpose of MyDHT project was to design a library to 
             Tag: rust
           </a>
         </h2>
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
+      <a href="/posts/tunnel_imp/" class="link black dim">
+        Implementing MyDHT tunnel
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).
+That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.
+This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream.
+    </div>
+  </div>
+</div>
+
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
+      <a href="/posts/tunnel/" class="link black dim">
+        Tunnel crate and MyDHT ?
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      In my previous post I described some aspects of MyDHT crate, basically a library to implement peer2peer application.
+In this post I will describe another crates, tunnel; then try to define how it will be used within MyDHT.
+Tunnel is a crate for experimenting with different kind of multi hop layered ciphering of content (similar to tor, maybe more like a multihop vpn).
+It defines the various traits for operations associated with this problematics : route building, peer proxying, message sending, peer receiving, peer replying.
+    </div>
+  </div>
+</div>
+
         
           <div class="relative w-100 mb4 bg-white nested-copy-line-height">
   <div class="bg-white mb3 pa4 gray overflow-hidden">
@@ -342,6 +447,48 @@ Previous design The initial purpose of MyDHT project was to design a library to 
     <div class="nested-links f5 lh-copy nested-copy-line-height">
       initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
 Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error).
+    </div>
+  </div>
+</div>
+
+        
+      
+        <h2 class="f1">
+          <a href="/tags/tunnel" class="link blue hover-black">
+            Tag: tunnel
+          </a>
+        </h2>
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
+      <a href="/posts/tunnel_imp/" class="link black dim">
+        Implementing MyDHT tunnel
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).
+That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.
+This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream.
+    </div>
+  </div>
+</div>
+
+        
+          <div class="relative w-100 mb4 bg-white nested-copy-line-height">
+  <div class="bg-white mb3 pa4 gray overflow-hidden">
+    <span class="f6 db">Posts</span>
+    <h1 class="f3 near-black">
+      <a href="/posts/tunnel/" class="link black dim">
+        Tunnel crate and MyDHT ?
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      In my previous post I described some aspects of MyDHT crate, basically a library to implement peer2peer application.
+In this post I will describe another crates, tunnel; then try to define how it will be used within MyDHT.
+Tunnel is a crate for experimenting with different kind of multi hop layered ciphering of content (similar to tor, maybe more like a multihop vpn).
+It defines the various traits for operations associated with this problematics : route building, peer proxying, message sending, peer receiving, peer replying.
     </div>
   </div>
 </div>

@@ -9,7 +9,7 @@
     <meta name="MobileOptimized" content="320">
 
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="generator" content="Hugo 0.26" />
+    <meta name="generator" content="Hugo 0.30.2" />
     
     
       <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
@@ -32,7 +32,7 @@
 
 
 
-<meta property="og:updated_time" content="2017-11-05T10:14:08&#43;02:00"/>
+<meta property="og:updated_time" content="2017-11-12T11:06:08&#43;02:00"/>
 
 
 
@@ -136,6 +136,59 @@
       
       <div class="blah w-100">
         <h1 class="f3 fw1 athelas mt0 lh-title">
+          <a href="/posts/tunnel_imp/" class="color-inherit dim link">
+            Implementing MyDHT tunnel
+            </a>
+        </h1>
+        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
+          Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).
+That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.
+This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream.
+        </div>
+          <a href="/posts/tunnel_imp/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
+        
+      </div>
+    </div>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb4">
+            
+<article class="bb b--black-10">
+  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
+    <div class="flex flex-column flex-row-ns">
+      
+      <div class="blah w-100">
+        <h1 class="f3 fw1 athelas mt0 lh-title">
+          <a href="/posts/tunnel/" class="color-inherit dim link">
+            Tunnel crate and MyDHT ?
+            </a>
+        </h1>
+        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
+          In my previous post I described some aspects of MyDHT crate, basically a library to implement peer2peer application.
+In this post I will describe another crates, tunnel; then try to define how it will be used within MyDHT.
+Tunnel is a crate for experimenting with different kind of multi hop layered ciphering of content (similar to tor, maybe more like a multihop vpn).
+It defines the various traits for operations associated with this problematics : route building, peer proxying, message sending, peer receiving, peer replying.
+        </div>
+          <a href="/posts/tunnel/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
+        
+      </div>
+    </div>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb4">
+            
+<article class="bb b--black-10">
+  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
+    <div class="flex flex-column flex-row-ns">
+      
+      <div class="blah w-100">
+        <h1 class="f3 fw1 athelas mt0 lh-title">
           <a href="/posts/sync_transport/" class="color-inherit dim link">
             Allowing both blocking and non-blocking transport
             </a>
@@ -153,61 +206,32 @@ Those non blocking transports behave similarily as non-blocking Tcp scocket by r
 
           </div>
         
-          <div class="relative w-100 mb4">
-            
-<article class="bb b--black-10">
-  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
-    <div class="flex flex-column flex-row-ns">
-      
-      <div class="blah w-100">
-        <h1 class="f3 fw1 athelas mt0 lh-title">
-          <a href="/posts/process2/" class="color-inherit dim link">
-            MyDHT service usage switch (part 2)
-            </a>
-        </h1>
-        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
-          The point of this post is to give a taste of how service are configured within the MyDHT new design. we are going to adapt a test case to run in a single thread.
-All changes describe are on &lsquo;MyDHTConf&rsquo; trait implementation for &lsquo;TestLocalConf&rsquo; struct (to create an application this big trait must be implemented : basically it contains the associated types and the initialisation functions of every components).
-        </div>
-          <a href="/posts/process2/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
-        
-      </div>
-    </div>
-  </div>
-</article>
-
-          </div>
-        
-          <div class="relative w-100 mb4">
-            
-<article class="bb b--black-10">
-  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
-    <div class="flex flex-column flex-row-ns">
-      
-      <div class="blah w-100">
-        <h1 class="f3 fw1 athelas mt0 lh-title">
-          <a href="/posts/process1/" class="color-inherit dim link">
-            MyDHT Refactoring And Threading (part 1)
-            </a>
-        </h1>
-        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
-          Lastly I got some time in my hand (ended my previous job and looking for more low level programming) to refactor some pretty terrible old project of mine.
-Even if the refactor is far from complete, the design and its primo implementation is.
-This post focus on MyDHT redesign,
-Previous design The initial purpose of MyDHT project was to design a library to run a distributed hash table. It evolves to key value peer to peer info exchange with multi-hop request proxying (query proxyied to none connected peers).
-        </div>
-          <a href="/posts/process1/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
-        
-      </div>
-    </div>
-  </div>
-</article>
-
-          </div>
-        
       </section>
 
     
+      <section class="w-100">
+        <h1 class="f3">More</h1>
+        
+        
+          <h2 class="f5 fw4 mb4 dib mr3">
+            <a href="/posts/process2/" class="link black dim">
+              MyDHT service usage switch (part 2)
+            </a>
+          </h2>
+        
+          <h2 class="f5 fw4 mb4 dib mr3">
+            <a href="/posts/process1/" class="link black dim">
+              MyDHT Refactoring And Threading (part 1)
+            </a>
+          </h2>
+        
+
+        
+        
+          <a href="/posts/" class="link db f6 pa2 br3 bg-mid-gray white dim w4 tc">All Posts</a>
+        
+        </section>
+      
 
       </div>
   

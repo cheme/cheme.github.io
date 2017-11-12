@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Émeric misexperiment blog  | Implementing MyDHT tunnel</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="generator" content="Hugo 0.30.2" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    <link href='https://cheme.github.io/dist/main.css' rel='stylesheet' type="text/css" />
+    
+      
+    
+
+    
+
+    <meta property="og:title" content="Implementing MyDHT tunnel" />
+<meta property="og:description" content="Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).
+That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.
+This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://cheme.github.io/posts/tunnel_imp/" />
+
+
+
+<meta property="article:published_time" content="2017-11-12T11:06:08&#43;02:00"/>
+
+<meta property="article:modified_time" content="2017-11-12T11:06:08&#43;02:00"/>
+
+
+
+
+
+
+
+
+
+
+
+<meta itemprop="name" content="Implementing MyDHT tunnel">
+<meta itemprop="description" content="Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).
+That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.
+This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream.">
+
+
+<meta itemprop="datePublished" content="2017-11-12T11:06:08&#43;02:00" />
+<meta itemprop="dateModified" content="2017-11-12T11:06:08&#43;02:00" />
+<meta itemprop="wordCount" content="4141">
+
+
+
+<meta itemprop="keywords" content="programming,tunnel,design,rust," />
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Implementing MyDHT tunnel"/>
+<meta name="twitter:description" content="Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).
+That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.
+This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream."/>
+
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://cheme.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      Émeric misexperiment blog
+    </a>
+    <div class="flex-l items-center">
+      
+      
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+  <div class="flex-l mt2 mw8 center">
+    <article class="center cf pv5 ph3 ph4-ns mw7">
+      <header>
+        <p class="f6 b helvetica tracked">
+          POSTS
+        </p>
+        <h1 class="f1">
+          Implementing MyDHT tunnel
+        </h1>
+      </header>
+      <div class="nested-copy-line-height lh-copy f4 nested-links nested-img mid-gray">
+        
+
+<p>Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).</p>
+
+<p>That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.</p>
+
+<p>This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream.</p>
+
+<p>The new crate is called <a href="https://github.com/cheme/mydht/tree/master/mydht-tunnel">mydht-tunnel</a>.</p>
+
+<h1 id="tunneling-use-case">tunneling use case</h1>
+
+<p>We use a variable length tunnel (&lsquo;Full&rsquo; tunnel) in a mode that does not require any caching.</p>
+
+<p><img src="../../static/tunnel1.png" alt="tunnel_circuit" /></p>
+
+<p>Alice sends a query to Bob over n peer (on schema 2 peers), each peer find reference (address) to next peer after reading frame header (asymetric ciphering), then each peer proxy content (symetric ciphering) to next peer. Last peer (Bob) can read the query and will reply using a payload that was inserted by Alice. Depending on config, the payload will route in the same route as for sending or in a different route (choosed by Alice).</p>
+
+<p>So all is decided by Alice, other peers will only decipher the frame and proxy it (or reply to it for Bob). So most of the cost is for Alice peers and dest have to deciphered one layer on query and decipher header plus cipher on layer on reply, Alice have to multi ciphered all peers query, multi ciphered all peers reply headers and on reply multi decipher reply content.</p>
+
+<p>Basically the frame sent by Alice for two hop with reply tunnel will look like that :</p>
+
+<p><img src="../../static/tunnel2.png" alt="tunnel_query_frame" /></p>
+
+<p>Each ciphered layer contains an asymetrically ciphered header (with a symetric key for the content and the next peer address) and symetrically ciphered content.<br />
+The content read is the payload to transmit to next peer or the query plus the reply payload for dest (Bob).<br />
+The reply on the schema is obviously not the reply (written by alice, not bob), but the header to use for replying to alice, what we will call the reply payload :</p>
+
+<p><img src="../../static/tunnel3.png" alt="tunnel_query_reply_payload" /></p>
+
+<p>In this payload, each layer contains next peer address (reply route) and a symetric key, for Bob those two infos are in its query header. The last peer (Alice) will not receive a single key for proxying the content but allkeys needed to read the reply.<br />
+The route choice is made by Alice (same as for query), this implies that to build it our &lsquo;Full&rsquo; tunnel implementation contains another &lsquo;Full&rsquo; tunnel implementation (a variant without reply), leading to an iteresting type as seen in this debug trace (to big to be easily readable).</p>
+
+<p><img src="../../images/screenshot.png" alt="debug_screenshot" /></p>
+
+<p>Bob replies by sending the reply payload containing all symetric keys, plus its actual reply encoded with its own reply symetric key.</p>
+
+<p><img src="../../static/tunnel4.png" alt="tunnel_initial_reply_frame" /></p>
+
+<p>Each proxy hop will read (similar as query) its header and will proxy the included content of payload, then proxy the symetrically enciphered reply content from previous peer by symetrically ciphering it (sym key provided in header). Note that at least two limiter are in use here for first part and second part (a bit more in fact).</p>
+
+<p>At the end alice will receive :</p>
+
+<p><img src="../../static/tunnel5.png" alt="tunnel_final_reply_frame" /></p>
+
+<p>Finally Alice read her header to get back all the reply keys (that she originally generate while building query frame), and with those n+1 key can access Bob reply.</p>
+
+<p>We see that alice could have store those keys instead of sending them back to herself; in a same way proxying peer (case with same reply route only) could have store symmetric reply key when proxying the query : that is the scheme with caching (no need for the big reply payload), the other mode for &lsquo;Full&rsquo; that is not yet include in mydht-tunnel (but already in tunnel).</p>
+
+<p>In fact the frame is a bit more complex and &lsquo;limiters&rsquo; readers and writers are used to mark the end of frames (it is or will be documented in tunnel crate).</p>
+
+<h1 id="implementation">implementation</h1>
+
+<h2 id="inner-service">inner service</h2>
+
+<p>Tunneling is fine, with custom code both in local and global service of this MyDHT instance. Still we probably want to run a service. Their is two possibility :</p>
+
+<ul>
+<li>service running from another mydht instance : another mydht is running on another listening address (possibly on another transport), but the same peers are used (with an adapter to switch address). The mydht instance will be use from this other instance to send content. The non tunnel mydht instance will be use to manage peers and should send its update to the other instance tunnel services (tunnel are build from connected peers). It will also be use to run the service specific code.<br /></li>
+<li>service is include into tunnel service : probably the best solution if we do not want to run two transports, simply put the service to run into GlobalTunnel service and into LocalTunnel service.</li>
+</ul>
+
+<p>So MyDHTTunnel contains an inner service that can run on both local and global tunnel specific services :</p>
+
+<pre><code class="language-rust">pub trait MyDHTTunnelConf : 'static + Send + Sized {
+...
+  type InnerCommand : ApiQueriable + PeerStatusListener&lt;Self::PeerRef&gt;
+    + Clone
+    + Send;
+  type InnerReply : ApiQueriable
+    + Send;
+  type InnerServiceProto : Clone + Send;
+  type InnerService : Service&lt;
+    CommandIn = GlobalCommand&lt;Self::PeerRef,Self::InnerCommand&gt;,
+    CommandOut = GlobalTunnelReply&lt;Self&gt;,
+  &gt;
+... 
+</code></pre>
+
+<p>Note that currently the same service is used for local and global, it could become usefull to have two separate service in the future (in standard mydht it is).</p>
+
+<pre><code class="language-rust">
+pub struct LocalTunnelService&lt;MC : MyDHTTunnelConf&gt; {
+...
+  pub inner : MC::InnerService,
+</code></pre>
+
+<p>and</p>
+
+<pre><code class="language-rust">pub struct GlobalTunnelService&lt;MC : MyDHTTunnelConf&gt; {
+  pub inner : MC::InnerService,
+</code></pre>
+
+<h2 id="tunnel-access">Tunnel access</h2>
+
+<p>Tunnel &lsquo;Full&rsquo; implementation struct (with inner cache) is located in global service of MyDHT, but with this use case (no routing information in cache) we do not want to use the global service for every proxy or reply (theorically only required for sending query).</p>
+
+<p>For this purpose we change tunnel Api to create a clonable tunnel partial implementation which could be send to our Read service.<br />
+This lightweight implementation of tunnel uses the same prototypes but with optional result (and in some specific case less parameters).</p>
+
+<p>So we create/add this lightweight clonable tunnel in our Read service and when receiving a tunnel frame, if the methods to get proxy writer (or reply writer for bob) returns a value, we send directly a message to the sender (through mainloop), if no result return from this lightweight tunnel, we send a message to global service where we run the method on the main tunnel object (with cache) and then resulting message is send to the writer (through mainloop again).</p>
+
+<p>So a new method (and associated type) is added to TunnelNoRep to instantiate the clonable lightweight tunnel :</p>
+
+<pre><code class="language-rust">  fn new_tunnel_read_prov (&amp;self) -&gt; Self::ReadProv {
+</code></pre>
+
+<p>The lightweight tunnel is define in two traits (with and without reply) :</p>
+
+<pre><code class="language-rust">pub trait TunnelNoRepReadProv&lt;T : TunnelNoRep&gt; {
+  fn new_tunnel_read_prov (&amp;self) -&gt; Self;
+  fn new_reader (&amp;mut self) -&gt; &lt;T as TunnelNoRep&gt;::TR;
+  fn can_dest_reader (&amp;mut self, &amp;&lt;T as TunnelNoRep&gt;::TR) -&gt; bool;
+  fn new_dest_reader&lt;R : Read&gt; (&amp;mut self, &lt;T as TunnelNoRep&gt;::TR, &amp;mut R) -&gt; Result&lt;Option&lt;&lt;T as TunnelNoRep&gt;::DR&gt;&gt;;
+  fn can_proxy_writer (&amp;mut self, &amp;&lt;T as TunnelNoRep&gt;::TR) -&gt; bool;
+  fn new_proxy_writer (&amp;mut self, &lt;T as TunnelNoRep&gt;::TR) -&gt; Result&lt;Option&lt;(&lt;T as TunnelNoRep&gt;::PW, &lt;&lt;T as TunnelNoRep&gt;::P as Peer&gt;::Address)&gt;&gt;;
+}
+</code></pre>
+
+<p>and</p>
+
+<pre><code class="language-rust">pub trait TunnelReadProv&lt;T : Tunnel&gt; : TunnelNoRepReadProv&lt;T&gt; where
+ &lt;T as TunnelNoRep&gt;::TR : TunnelReader&lt;RI=T::RI&gt;,
+ &lt;T as TunnelNoRep&gt;::ReadProv : TunnelReadProv&lt;T&gt;,
+ {
+  fn reply_writer_init_init (&amp;mut self) -&gt; Result&lt;Option&lt;T::RW_INIT&gt;&gt;;
+  fn new_reply_writer&lt;R : Read&gt; (&amp;mut self, &amp;mut T::DR, &amp;mut R) -&gt; Result&lt;(bool,bool,Option&lt;(T::RW, &lt;T::P as Peer&gt;::Address)&gt;)&gt;;
+}
+</code></pre>
+
+<p>Some additional functions like &lsquo;can_proxy_writer&rsquo; are here to avoid consuming the read stream (otherwhise runing the operation again in global service will fail). Same thing must be taken care of when implementing function like &lsquo;new_reply_writer&rsquo; : if content is read from stream a state must be store in the ExtReader if returning None.</p>
+
+<h2 id="special-msgenc">Special msgenc</h2>
+
+<p>Having this new tunnel object for our Read service is fine, but it need to read from stream. That is not possible in local service : local service only have a message as input. The produced tunnel writers also need to be use from WriteService, but their is no call to local service in write service.<br />
+Local service does not seem suitable for tunnel read and write operations.</p>
+
+<p>Global service will need to read (see next part on borrowed stream), but it is fine.</p>
+
+<p>The way it is done here is to use the MsgEnc trait to do those operation. MsgEnc is used in both Read and Write service and have access to their stream.<br />
+A special MsgEnc implementation is used (contains an actual MsgEnc for inner service content and the lightweight clonable tunnel) :</p>
+
+<pre><code class="language-rust">pub struct TunnelWriterReader&lt;MC : MyDHTTunnelConf&gt; {
+  pub inner_enc : MC::MsgEnc,
+    ...
+  pub t_readprov : FullReadProv&lt;TunnelTraits&lt;MC&gt;&gt;,
+}
+</code></pre>
+
+<p>On decoding (read service) it will read header of frame then inner content with its inner encoder if the peer is dest(Bob or Alice on reply).
+On encoding (write service) it will either run proxy operation or reply with inner reply to encode.</p>
+
+<h2 id="borrowing-read-stream">Borrowing read stream</h2>
+
+<p>Among the tunnel operations, two are really interesting : the proxy that forward its inner content and the dest (bob) replying by forwarding the reply payload.</p>
+
+<p>The point is that in both case we read from a bytestream and forward it.</p>
+
+<p>Reading header in memory is fine (next peer address, symetric key&hellip;), putting the reply payload or content in memory is not. By putting the payload to proxy in memory all become totally unscallable (message can be pretty huge with long tunnel plus query and reply can contains any size of content). With our current design we shall need to store the content to proxy in a file (in memory is not an option) from read service then read this file from write service to proxy its content : totally uncall for.</p>
+
+<p>The only way to proxy those variable length random (ciphered) bytes is by having both streams (and associated reader and writer) in the same process (only a byte buffer needed in memory).<br />
+All tunnel crate code is based upon this bufferized approach (by composing &lsquo;readwrite_comp&rsquo; crates ExtWrite and ExtRead implementation).</p>
+
+<pre><code class="language-rust">pub trait ExtRead {
+
+  /// read header (to initiate internal state) if needed
+  fn read_header&lt;R : Read&gt;(&amp;mut self, &amp;mut R) -&gt; Result&lt;()&gt;;
+  /// read in buffer.
+  fn read_from&lt;R : Read&gt;(&amp;mut self, &amp;mut R, &amp;mut[u8]) -&gt; Result&lt;usize&gt;;
+  /// read exact
+  fn read_exact_from&lt;R : Read&gt;(&amp;mut self, r : &amp;mut R, mut buf: &amp;mut[u8]) -&gt; Result&lt;()&gt; {
+  ...
+  }
+  /// read up to first no content read and apply read_end
+  fn read_to_end&lt;R : Read&gt;(&amp;mut self, r : &amp;mut R, buf : &amp;mut[u8]) -&gt; Result&lt;()&gt; {
+  ...
+  }
+  /// read end bytes (and possibly update internal state).
+  /// To use in a pure read write context, this is call on CompR Drop and should generally not need to be called manually.
+  /// When the outer element of composition is removed drop finalize its action.
+  fn read_end&lt;R : Read&gt;(&amp;mut self, &amp;mut R) -&gt; Result&lt;()&gt;;
+  ...
+}
+...
+
+pub trait ExtWrite {
+  /// write header if needed
+  fn write_header&lt;W : Write&gt;(&amp;mut self, &amp;mut W) -&gt; Result&lt;()&gt;;
+  /// write buffer.
+  fn write_into&lt;W : Write&gt;(&amp;mut self, &amp;mut W, &amp;[u8]) -&gt; Result&lt;usize&gt;;
+  /// write all
+  fn write_all_into&lt;W : Write&gt;(&amp;mut self, w : &amp;mut W, mut buf : &amp;[u8]) -&gt; Result&lt;()&gt; {
+  ...
+  }
+  /// Could add end content (padding...) only if read can manage it
+  /// does not flush recursivly
+  #[inline]
+  fn flush_into&lt;W : Write&gt;(&amp;mut self, _ : &amp;mut W) -&gt; Result&lt;()&gt; {Ok(())}
+  /// write content at the end of stream. Read will be able to read it with a call to read_end.
+  /// To use in a pure read write context, this is call on CompW Drop and should generally not need to be called manually.
+  /// When the outer element of composition is removed drop finalize its action.
+  fn write_end&lt;W : Write&gt;(&amp;mut self, &amp;mut W) -&gt; Result&lt;()&gt;;
+}
+</code></pre>
+
+<p>Also interesting is MultiExt to keep implementation efficient (and avoid the defect of too much composition) when composing over multiple ExtRead or ExtWrite :</p>
+
+<pre><code class="language-rust">/// Multiple layered read (similar to MCompW).
+pub type MultiR&lt;'a, 'b, R, ER&gt; = CompR&lt;'a,'b,R,MultiRExt&lt;ER&gt;&gt;;
+
+pub struct MultiRExt&lt;ER : ExtRead&gt;(Vec&lt;ER&gt;, Vec&lt;CompRState&gt;);
+</code></pre>
+
+<p>So with mydht running read and write in different service the only way to use correctly tunnel is to move the readstream (tcp socket in our test) into the forward write service (another peer tcp socket in our test). We could also choose to move the write stream into the read stream but it is wrong as write stream to use is define by reading read stream and selected by address in mainloop.</p>
+
+<p>So if we borrow readstream proxy is easy and we can use some simple proxy like in our tunnel crate test cases :</p>
+
+<pre><code class="language-rust">        let mut readbuf = vec![0;MC::PROXY_BUF_SIZE];
+        let mut y2 = y.opt_clone().unwrap();
+        let mut ry = ReadYield(rs,y);
+        let mut reader = CompExtRInner(&amp;mut ry,rshad);
+        proxy.read_header(&amp;mut reader)?;
+
+        let mut wy = WriteYield(w,&amp;mut y2);
+        let mut w = CompExtWInner(&amp;mut wy,wshad);
+        proxy.write_header(&amp;mut w)?;
+        // unknown length
+        let mut ix;
+        while  {
+          let l = proxy.read_from(&amp;mut reader, &amp;mut readbuf)?;
+          ix = 0;
+          while ix &lt; l {
+            let nb = proxy.write_into(&amp;mut w, &amp;mut readbuf[..l])?;
+            ix += nb;
+          }
+          l &gt; 0
+        } {}
+        proxy.read_end(&amp;mut reader)?;
+        proxy.write_end(&amp;mut w)?;
+        proxy.flush_into(&amp;mut w)?;
+ 
+</code></pre>
+
+<p>Note that we could use &lsquo;write_all_into&rsquo; for shorter/cleanest code (written this way for debugging purpose).</p>
+
+<h2 id="readstream-in-message">readstream in message</h2>
+
+<p>ReadStream and WriteStream are already &lsquo;Send&rsquo; (they were put in mpsc messages in my previous mydht design).</p>
+
+<p>So we borrow the readstream by putting it in the message for the write service.</p>
+
+<pre><code class="language-rust">          let is_bor = mess.is_borrow_read();
+        ... 
+          if is_bor {
+            // put read in msg plus slab ix
+            let shad = replace(&amp;mut self.shad_msg,None).unwrap();
+            let stream = replace(&amp;mut self.stream,None).unwrap();
+            mess.put_read(stream,shad,self.token,&amp;mut self.enc);
+          }
+</code></pre>
+
+<p>Not only the read stream is borrowed, but also the shadow use for reading (MyDHT allows definition of Shadow/Ciphering between peers). We also pass a reference to MsgEnc allowing us to transmit some internal state object (the current dest reader in some config)</p>
+
+<p>This is done into read service by using a specific trait on message :</p>
+
+<pre><code class="language-rust">pub trait ReaderBorrowable&lt;MC : MyDHTConf&gt; {
+  #[inline]
+  fn is_borrow_read(&amp;self) -&gt; bool { false }
+  #[inline]
+  fn is_borrow_read_end(&amp;self) -&gt; bool { true }
+  #[inline]
+  fn put_read(&amp;mut self, _read : &lt;MC::Transport as Transport&gt;::ReadStream, _shad : &lt;MC::Peer as Peer&gt;::ShadowRMsg, _token : usize, &amp;mut MC::MsgEnc) {
+  }
+}
+</code></pre>
+
+<p>The trait must be implemented by local service command.</p>
+
+<p>After its read stream borrow, the read service is in a borrow state (we also should send a end message to mainloop) that is stale until it get its stream back (input channel message buffer size limit is require here).</p>
+
+<h2 id="sending-peer-to-tunnel-cache">Sending Peer to tunnel cache</h2>
+
+<p>Connected peers stored in global service need to be synchronized with mainloop connected peer cache.
+This is achieved by the new trait &lsquo;PeerStatusListener&rsquo;.</p>
+
+<pre><code class="language-rust">impl&lt;MC : MyDHTTunnelConf&gt; PeerStatusListener&lt;MC::PeerRef&gt; for GlobalTunnelCommand&lt;MC&gt; {
+  const DO_LISTEN : bool = true;
+  fn build_command(command : PeerStatusCommand&lt;MC::PeerRef&gt;) -&gt; Self {
+    match command {
+      PeerStatusCommand::PeerOnline(rp,_) =&gt; GlobalTunnelCommand::NewOnline(rp),
+      PeerStatusCommand::PeerOffline(rp,_) =&gt; GlobalTunnelCommand::Offline(rp),
+    }
+  }
+}
+</code></pre>
+
+<p>The global service command if implementing this trait will receive new peers on connection (hardcoded in MyDHT mainloop), that is the purpose of the above implementation.</p>
+
+<p>This seems a little hacky, and may change (if not usefull for other GlobalService usecases).</p>
+
+<h2 id="handling-asynch">handling asynch</h2>
+
+<p>At this point all looks fine : tunnel operation in MsgEnc, a inner service, a inner msgenc, even borrowing read.</p>
+
+<p>Yet our test case only ran fine up to 8 peers tunnels (6 proxy only). The problem was that I did forgot that borrowed read stream is a non blocking transport implementation (non blocking tcp socket) and which with medium size message (8 peers) is prone to return a &lsquo;WouldBlock&rsquo; error. In previous blog we have seen that non blocking transports are managed by using ReadYield and WriteYield composer to suspend service on such errors. Problem, those composers use an &lsquo;&amp;mut asyncYield&rsquo; to suspend that cannot be use in foth reader and writer composer at the same time.</p>
+
+<p>Needing to access &lsquo;&amp;mut asynch_yield&rsquo; from two stream at the same time is bad.
+As a pragmatic way of doing it an &lsquo;opt_clone&rsquo; method was added to &lsquo;SpawnerYield&rsquo; trait (optional clone).</p>
+
+<p>First attempt: passing yield in message : not easy, main issue is that &lsquo;Service&rsquo; trait is not associated to &lsquo;SpawnYield&rsquo; (parameter type of &lsquo;Service&rsquo; inner &lsquo;call&rsquo; method) and me would need to define it as a trait object in the message (Read service do not know about the type of this SpawnYield even if we know it will be call with the one define in MyDHTConf).</p>
+
+<p>Second more successful idea, passing yield in &lsquo;MsgEnc&rsquo;, as seen before &lsquo;MsgEnc&rsquo; is used for new means (not exclusively encoding) and passing yield as parameter makes the interface even more MyDHT specific (and less encoding specific), yet it let us use our &lsquo;SpawnerYield&rsquo; as needed.</p>
+
+<p>Next we need to choose :
+  - make &lsquo;spawneryield&rsquo; cloneable. Currently there is &lsquo;&amp;&lsquo;a mut Coroutine&rsquo; implementation that does not allow it.
+  - remove opt_clone and use yield only in Write or Read at the same time: doable in most code except &lsquo;reply_writer_init&rsquo; function where forwarding the reply payload is inner to &lsquo;Full&rsquo; tunnel trait implementation : we could change this interface and simply add the possibility to ask for copying bytes up to the end of proxy (will be done manually like when proxying). This could be part of a good redesign of tunnel to use a generic state machine for encoding/decoding (currently having trait function called at specific points shows its limitations).</p>
+
+<h1 id="a-better-design">A better design</h1>
+
+<p>Another possibility would have been to run proxy and reply (the copy of the reply payload) directly from the Tunnel Local service. Meaning that read stream is still borrowed in message (but only to be use in local service) and that write stream is send from mainloop to local service (through read service) instead of spawning a write service.<br />
+What is the gain ? We avoid spawning a Write service in those two cases.<br />
+What does it involves ?
+- mainloop on connect will send its write stream to read (very specific)
+- special msgenc could be simplier as async_yield reference usage will be deported to local service
+- yielding on those operation from local service involves specific mainloop code (either send a message to read service that will yield local service or directly yield local service if its spawner allows it (probably not our use case)).</p>
+
+<p>All in all, having already implement the other design, this design being a bit more impactant for mydht base code, I choose not to follow it yet.<br />
+To lower write service spawn impact, a thread pool service spawner should be use. Thinking back, the idea to run proxy in local service add the overhead of unyielding through sending a message to read service.</p>
+
+<h2 id="service-configuring">service configuring</h2>
+
+<p>To sumup (and maybe make this text more intelligible) service usage :
+- write service : probably better in its own thread (cpu pool usage is nice as we &lsquo;SendOnce&rsquo;), can still run in a coroutine service if using a non blocking transport.
+- global service : depends on its innerservice, out of the inner service it is mostly a cache (no reading or writing operation was a implementation choice (required some change on tunnel api on some future change for other tunnel mode)) and could run on the mainloop thread.
+- read service : only reading operation (not as heavy as write), so depends on inner service in localservice : if innerservice is costy we should probably put read in its own thread. For brocking transport it must run in its own thread anyway.
+- Local service (spawn from read service) : because read service is running mostly once, their is no reason to spawn local service in its own thread (it is read service that should run in its own thread). With the alternative design we could still choose to run read service in the same  thread as mainloop and to put local service in a new thread : that way unyielding from mainloop could directly address the readservice (with a clonable spawn unyield that need to be transmit to mainloop) making it potentially a bit better (if reading message is small and yielding requring : seems contradictory but it could not be depending on transport).</p>
+
+<p>Reconsidering, the message passing on Unyield for this &lsquo;better design&rsquo; is really bad, due to the way unyield was define : a costless function that could be call on wrong service state numerous time (and when debugging it is) without big impact. So this better design involves also the compromise of local read service and threaded local service or to change local service to be a function call instead of a service spawned from read service (could be ok in a way).</p>
+
+<h1 id="transport-connection-issue">Transport Connection Issue</h1>
+
+<p>Connection management does not fit the initial MyDHT use case.</p>
+
+<p>First idea was to use standard mydht connection, one sending and one receiving with each connected peers. But sending content to peer depends only on a random routing choice and we may route a lot through a single peer (communication with many peers but with same first peer for tunnels). The way proxying or sending is done we need to send all content before switching to another message, and some contents may be send for minutes or more (full streamed messaging with possible file attachments). So when proxying content to a peer for whom we already proxy another content, we are totally blocking it : that is bad.</p>
+
+<p>The easiest way to circumvent this issue is simply to use a new transport stream for each proxy message :
+A new &lsquo;SendOnce&rsquo; mode is used for those single use connection. That is really bad as <strong>observing connection and deconnection in the network will directly reveals the routes used</strong> (with a global network observation). So next step should be to reuse connection by managing an open connection pool, this is not as easy (problematic of choosing between waiting for connection to be available or opening a new connection, and when to release a connection). Another idea is to multiplex at transport level (transport keeping connection openned), that may be simplier but a bit to specific.</p>
+
+<p>The single message per connection choice is also a lot easier for implementation, as a miss of write_end or read_end from ExtRead or ExtWrite is less impacting.</p>
+
+<p>Even if our current use case and tests are done with NoAuth mode, with standard mydht auth mode the single use of connection becomes a significant overhead.</p>
+
+<h1 id="frame-size-issue">Frame size issue</h1>
+
+<p>With this tunnel scheme we got a good idea of the place of the peer in the tunnel by looking at frames size : on query it gets shorter for each proxying and on reply it gets fatter for each proxying. This is an issue that shall be fixed at tunnel level (in tunnel crate), some random filler may be added to the tunnel protocol (if not already the case).</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Use of tunnel has been only plugged for Full tunnel with reply in frame without error handling (I want to use it in a POC voting protocol). Our test case &lsquo;test_ping_pong_mult_hop&rsquo; can be use for variable length tunnel (test with more than a hundred hops is fine but test case is currently plugged on 25).</p>
+
+<p>This test case was very usefull, and an initial issue was to forget about &lsquo;ReadYield&rsquo; requirement for the borrowed stream. That leads to a fun debugging session, with this test case on localhost running only up to a 8 peer tunnel (6 proxy peer only) and hangging silently otherwhise. Also usage of the &lsquo;SpawnerYield&rsquo; like described before was not as smooth as I thought it will be (some api changes looks bad).</p>
+
+<p>Some major issue makes the implementation highly insecure (connection management need to be uncoupled from single message transmission).</p>
+
+<p>For other &lsquo;Full&rsquo; tunnel modes (global service cache containing info for routing), the implementation looks doable (some of the service message routing to global service cache is already in place (initialy reply was send to global service before realizing it was useless)).</p>
+
+<p>Yet we will have a first issue : the reply dest is currently cached in tunnel by reading its address from its reader (stream), with MyDHT transport trait it is not an option because we cannot say that we will reply to the address use by the connected stream (port in tcp socket differs from listening one).<br />
+Two possibilities here :
+- put each peer reply address in the tunnel frame, next to the error id or the previous peer cache id (second one seems better because it could be added by ecah proxy peer)
+- change mydht trait to give access to the listening address from the read stream : bad that is the purpose of the MyDHT authentication (update of peer info). So simply use this scheme only with a MyDHT authentication and put the connected peer reference in the message sent to global service.</p>
+
+      </div>
+    </article>
+    <aside class="ph3 mt2 mt6-ns">
+      
+
+
+
+
+
+
+
+  <div class="bg-light-gray pa3">
+    <ul>
+      <li class="list b mb3">
+        4 More Posts
+      </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/tunnel_imp/" class="link ph2 pv2 db black o-50">
+            Implementing MyDHT tunnel
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/tunnel/" class="link ph2 pv2 db black">
+            Tunnel crate and MyDHT ?
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/sync_transport/" class="link ph2 pv2 db black">
+            Allowing both blocking and non-blocking transport
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process2/" class="link ph2 pv2 db black">
+            MyDHT service usage switch (part 2)
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process1/" class="link ph2 pv2 db black">
+            MyDHT Refactoring And Threading (part 1)
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+    </aside>
+  </div>
+
+    </main>
+    <footer class="bg-near-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://cheme.github.io/" >
+    &copy; 2017 Émeric misexperiment blog
+  </a>
+  
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+  </div>
+</footer>
+
+    <script src="https://cheme.github.io/dist/app.bundle.js" async></script>
+
+  </body>
+</html>

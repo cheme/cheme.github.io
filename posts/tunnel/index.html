@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Émeric misexperiment blog  | Tunnel crate and MyDHT ?</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="generator" content="Hugo 0.30.2" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    <link href='https://cheme.github.io/dist/main.css' rel='stylesheet' type="text/css" />
+    
+      
+    
+
+    
+
+    <meta property="og:title" content="Tunnel crate and MyDHT ?" />
+<meta property="og:description" content="In my previous post I described some aspects of MyDHT crate, basically a library to implement peer2peer application.
+In this post I will describe another crates, tunnel; then try to define how it will be used within MyDHT.
+Tunnel is a crate for experimenting with different kind of multi hop layered ciphering of content (similar to tor, maybe more like a multihop vpn).
+It defines the various traits for operations associated with this problematics : route building, peer proxying, message sending, peer receiving, peer replying." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://cheme.github.io/posts/tunnel/" />
+
+
+
+<meta property="article:published_time" content="2017-11-12T10:56:08&#43;02:00"/>
+
+<meta property="article:modified_time" content="2017-11-12T10:56:08&#43;02:00"/>
+
+
+
+
+
+
+
+
+
+
+
+<meta itemprop="name" content="Tunnel crate and MyDHT ?">
+<meta itemprop="description" content="In my previous post I described some aspects of MyDHT crate, basically a library to implement peer2peer application.
+In this post I will describe another crates, tunnel; then try to define how it will be used within MyDHT.
+Tunnel is a crate for experimenting with different kind of multi hop layered ciphering of content (similar to tor, maybe more like a multihop vpn).
+It defines the various traits for operations associated with this problematics : route building, peer proxying, message sending, peer receiving, peer replying.">
+
+
+<meta itemprop="datePublished" content="2017-11-12T10:56:08&#43;02:00" />
+<meta itemprop="dateModified" content="2017-11-12T10:56:08&#43;02:00" />
+<meta itemprop="wordCount" content="3167">
+
+
+
+<meta itemprop="keywords" content="programming,tunnel,design,rust," />
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Tunnel crate and MyDHT ?"/>
+<meta name="twitter:description" content="In my previous post I described some aspects of MyDHT crate, basically a library to implement peer2peer application.
+In this post I will describe another crates, tunnel; then try to define how it will be used within MyDHT.
+Tunnel is a crate for experimenting with different kind of multi hop layered ciphering of content (similar to tor, maybe more like a multihop vpn).
+It defines the various traits for operations associated with this problematics : route building, peer proxying, message sending, peer receiving, peer replying."/>
+
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://cheme.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      Émeric misexperiment blog
+    </a>
+    <div class="flex-l items-center">
+      
+      
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+  <div class="flex-l mt2 mw8 center">
+    <article class="center cf pv5 ph3 ph4-ns mw7">
+      <header>
+        <p class="f6 b helvetica tracked">
+          POSTS
+        </p>
+        <h1 class="f1">
+          Tunnel crate and MyDHT ?
+        </h1>
+      </header>
+      <div class="nested-copy-line-height lh-copy f4 nested-links nested-img mid-gray">
+        
+
+<p>In my previous post I described some aspects of MyDHT crate, basically a library to implement peer2peer application.</p>
+
+<p>In this post I will describe another crates, tunnel; then try to define how it will be used within MyDHT.</p>
+
+<p><a href="https://github.com/cheme/tunnel">Tunnel</a> is a crate for experimenting with different kind of multi hop layered ciphering of content (similar to tor, maybe more like a multihop vpn).<br />
+It defines the various traits for operations associated with this problematics : route building, peer proxying, message sending, peer receiving, peer replying.<br />
+It defines various implementations (after a redesign only &lsquo;Full&rsquo; implementation was kept, but it defines multiple mode that should/could be transfer to their own implementation).<br />
+It uses its own cache for routing (not use by all modes), and access a peer collection.<br />
+Yet tunnel does not provide a route (find peers) or send message (transport usage), it only makes it easy to build frame from a peers collection : test cases all ran on a single thread without actual transport usage (just &lsquo;Cursor&rsquo; streams usage).</p>
+
+<p>Layered cipher of tunnel are &lsquo;ExtRead&rsquo; and &lsquo;ExtWrite&rsquo; implementation that will later be composed, some others limiter &lsquo;ExtRead&rsquo; or &lsquo;ExtWrite&rsquo; are also use to show the ciphered content end. Those abstraction are defined in <a href="https://github.com/cheme/readwrite-comp">readwrite_comp</a> crate and are the basis of all those tunnel implementation.</p>
+
+<p>Using tunnel within MyDHT will be a good opportunity to test the library over network (with tcp transport), with multiple communication and in a multithreaded context.</p>
+
+<p>Current basic tunnel mode are :
+        - one time message
+        - one time message with error (current error mode involve caching)
+        - one time message with reply by caching proxying info for each peers
+        - one time message with reply by including reply frame in content
+        - established route (not yet implemented) using cache</p>
+
+<h1 id="tunnel-traits">Tunnel traits</h1>
+
+<p>Lets describe shortly tunnel traits and try to find how we can plug them in mydht :</p>
+
+<h2 id="peer">Peer</h2>
+
+<p>There is already an adapter between tunnel peer and mydhtpeer :</p>
+
+<pre><code class="language-rust">impl&lt;P : MPeer&gt; TPeer for P {
+  type Address = P::Address;
+  type ShadRead = P::ShadowRAuth;
+  type ShadWrite = P::ShadowWAuth;
+
+  fn get_address(&amp;self) -&gt; &amp;Self::Address {
+    self.get_address()
+  }
+  fn new_shadw(&amp;self) -&gt; Self::ShadWrite {
+    self.get_shadower_w_auth()
+  }
+  fn new_shadr(&amp;self) -&gt; Self::ShadRead {
+    self.get_shadower_r_auth()
+  }
+}
+</code></pre>
+
+<p>We can see that MyDHT shadower for authentication : this shadower is basically and asymetric cipher with public key associated with peer identity : for tunnel library it is the kind of cipher that is needed at peer level.<br />
+Tunnel obviously use a symetric scheme for its content, this scheme is defined in the TunnelTrait and not related with the Peer implementation choice (in mydht a second scheme for content with a shared key is associated with peer but not use in this adapter).</p>
+
+<h2 id="full-implementation-trait-usage">Full implementation trait usage</h2>
+
+<p>&lsquo;Full&rsquo; tunnel implementation is associated with multiple tunnel traits, they are grouped in a associated trait container :</p>
+
+<pre><code class="language-rust">pub trait GenTunnelTraits {
+  type P : Peer;
+  type LW : ExtWrite + Clone; // limiter
+  type LR : ExtRead + Clone; // limiter
+  type SSW : ExtWrite;// symetric writer
+  type SSR : ExtRead;// seems userless (in rpely provider if needed)
+  type TC : TunnelCache&lt;(TunnelCachedWriterExtClone&lt;Self::SSW,Self::LW&gt;,&lt;Self::P as Peer&gt;::Address),TunnelCachedReaderExtClone&lt;Self::SSR&gt;&gt;
+    + TunnelCacheErr&lt;(ErrorWriter,&lt;Self::P as Peer&gt;::Address), MultipleErrorInfo&gt; + CacheIdProducer;
+  type EW : TunnelErrorWriter;
+  type RP : RouteProvider&lt;Self::P&gt;;
+  type RW : TunnelWriterExt;
+  type REP : ReplyProvider&lt;Self::P, MultipleReplyInfo&lt;&lt;Self::P as Peer&gt;::Address&gt;&gt;;
+  type SP : SymProvider&lt;Self::SSW,Self::SSR&gt;;
+  type TNR : TunnelNoRep&lt;P=Self::P,W=Self::RW&gt;;
+  type EP : ErrorProvider&lt;Self::P, MultipleErrorInfo&gt;;
+}
+</code></pre>
+
+<p>This could be use and customize internally for our implementation.
+It seems that it is not justified anymore and is just an internal implementation detail now.</p>
+
+<p>Originally this subset of associated trait was shared with another alternative implementation (close to &lsquo;Full&rsquo; but without layered cyphering on the full frame : layered only on headers).</p>
+
+<p>We can recognize the required trait implementation for a tunnel, the most relevant ones for mydht interaction should be : peer as shown before, tunnelcache, routeprovider, tunnelnorep and the providers extending tunnelnorep.</p>
+
+<h2 id="tunnelcache">tunnelcache</h2>
+
+<pre><code class="language-rust">pub trait TunnelCache&lt;SSW,SSR&gt; {
+  fn put_symw_tunnel(&amp;mut self, &amp;[u8], SSW) -&gt; Result&lt;()&gt;;
+  fn get_symw_tunnel(&amp;mut self, &amp;[u8]) -&gt; Result&lt;&amp;mut SSW&gt;;
+  fn has_symw_tunnel(&amp;mut self, k : &amp;[u8]) -&gt; bool {
+    self.get_symw_tunnel(k).is_ok()
+  }
+  fn put_symr_tunnel(&amp;mut self, SSR) -&gt; Result&lt;Vec&lt;u8&gt;&gt;;
+  fn get_symr_tunnel(&amp;mut self, &amp;[u8]) -&gt; Result&lt;&amp;mut SSR&gt;;
+  fn has_symr_tunnel(&amp;mut self, k : &amp;[u8]) -&gt; bool {
+    self.get_symr_tunnel(k).is_ok()
+  }
+}
+</code></pre>
+
+<p>This is a cache for storing symetric cyper (SSW and SSR) of a tunnel, SSW and SSR are CompExtW and CompExtR containing the state of the symetric cypher. Storage is indexed by a different bytes key (unique) for each peers (those key are generated by proxy peer and added to the proxyied content).
+- put_symw get_symw are used for storing ssw when proxying content
+- put_sym get_symr are used for writer (first peer) if we are expecting a reply</p>
+
+<p>Tunnel cache is mainly use to implement</p>
+
+<pre><code class="language-rust">impl&lt;TT : GenTunnelTraits&gt; TunnelManager for Full&lt;TT&gt; {
+</code></pre>
+
+<p>Within &lsquo;Full&rsquo; this cache is not use in all case. A mode insert all information for routing (even for a single reply) within the frame and no storage is needed, another mode (suitable for a persistent tunnel case) stores all reply routing info for each peer within this cache.</p>
+
+<h2 id="tunnelnorep">TunnelNoRep</h2>
+
+<p>The base trait for a tunnel. In this crate we choose a design with a trait hierarchy, this is the most basic trait : a tunnel with no reply or error capability.</p>
+
+<pre><code class="language-rust">pub trait TunnelNoRep {
+  type P : Peer;
+  type W : TunnelWriterExt;
+  type TR : TunnelReaderNoRep;
+  type PW : TunnelWriterExt + TunnelReaderExt&lt;TR=Self::TR&gt;;
+  type DR : TunnelReaderExt&lt;TR=Self::TR&gt;;
+  fn new_reader (&amp;mut self, &amp;&lt;Self::P as Peer&gt;::Address) -&gt; Self::TR;
+  fn init_dest(&amp;mut self, &amp;mut Self::TR) -&gt; Result&lt;()&gt;;
+  fn new_writer (&amp;mut self, &amp;Self::P) -&gt; (Self::W, &lt;Self::P as Peer&gt;::Address);
+  fn new_writer_with_route (&amp;mut self, &amp;[&amp;Self::P]) -&gt; Self::W;
+  fn new_proxy_writer (&amp;mut self, Self::TR) -&gt; Result&lt;(Self::PW, &lt;Self::P as Peer&gt;::Address)&gt;;
+  fn new_dest_reader&lt;R : Read&gt; (&amp;mut self, Self::TR, &amp;mut R) -&gt; Result&lt;Self::DR&gt;;
+}
+</code></pre>
+
+<p>We see associated type correspondance with previous GenTrait: some peer (us alice), a writer for sending, a reader to check if receiving or proxying, a proxy for proxying and a dest reader for destination reading (dest bob and alice if from a reply with &lsquo;Tunnel&rsquo; trait extension).</p>
+
+<p>Some operation on stream are specific to tunnel :</p>
+
+<pre><code class="language-rust">pub trait TunnelWriterExt : ExtWrite {
+  fn write_dest_info&lt;W : Write&gt;(&amp;mut self, w : &amp;mut W) -&gt; Result&lt;()&gt;;
+  fn write_dest_info_before&lt;W : Write&gt;(&amp;mut self, w : &amp;mut W) -&gt; Result&lt;()&gt;;
+}
+
+pub trait TunnelReaderExt : ExtRead {
+  type TR; 
+  fn get_reader(self) -&gt; Self::TR;
+}
+
+pub trait TunnelReaderNoRep : ExtRead {
+  fn is_dest(&amp;self) -&gt; Option&lt;bool&gt;; 
+  fn is_err(&amp;self) -&gt; Option&lt;bool&gt;; 
+}
+
+</code></pre>
+
+<p>Various operation to write content at some points of the frame building timeline.</p>
+
+<p>ExtWrite and ExtRead are trait for composing over Read and Write with additional method for writing/reading cipher header and writing/reading cipher padding (cipher or limiter), for reference :</p>
+
+<pre><code class="language-rust">pub trait ExtRead {
+  fn read_header&lt;R : Read&gt;(&amp;mut self, &amp;mut R) -&gt; Result&lt;()&gt;;
+  fn read_from&lt;R : Read&gt;(&amp;mut self, &amp;mut R, &amp;mut[u8]) -&gt; Result&lt;usize&gt;;
+  fn read_end&lt;R : Read&gt;(&amp;mut self, &amp;mut R) -&gt; Result&lt;()&gt;;
+ ...
+</code></pre>
+
+<h2 id="tunnel">Tunnel</h2>
+
+<p>This trait extend the &lsquo;TunnelNoRep&rsquo; by adding reply capability.</p>
+
+<pre><code class="language-rust">pub trait Tunnel : TunnelNoRep where Self::TR : TunnelReader&lt;RI=Self::RI&gt; {
+  type RI : Info;
+  type RW : TunnelWriterExt;
+  fn new_reply_writer&lt;R : Read&gt; (&amp;mut self, &amp;mut Self::DR, &amp;mut R) -&gt; Result&lt;(Self::RW, &lt;Self::P as Peer&gt;::Address)&gt;;
+  fn reply_writer_init&lt;R : Read, W : Write&gt; (&amp;mut self, &amp;mut Self::RW, &amp;mut Self::DR, &amp;mut R, &amp;mut W) -&gt; Result&lt;()&gt;;
+}
+</code></pre>
+
+<p>RI is a trait containning information used to build reply, the writer RW is the reply writer (proxy and dest reader for this reply are the same as for the query).<br />
+RW is similar to the writer use to send a query, but it differs enough to use its own trait (query is done with a knowledge of the route to use while replying is done without such knowledge).</p>
+
+<h2 id="tunnelerror">TunnelError</h2>
+
+<p>Extension to &lsquo;TunnelNoRep&rsquo; for error return capability.</p>
+
+<p>In tunnel an error is simply a random usize which indicates at what point the failure occured (only alice knows all peers and their error code).
+It is similar to reply but with a smaller content to send, which allow a lighter scheme. Also it applies to every peers, not only the dest.</p>
+
+<pre><code class="language-rust">pub trait TunnelError : TunnelNoRep where Self::TR : TunnelReaderError&lt;EI=Self::EI&gt; {
+  type EI : Info;
+  type EW : TunnelErrorWriter;
+  fn new_error_writer (&amp;mut self, &amp;mut Self::TR) -&gt; Result&lt;(Self::EW, &lt;Self::P as Peer&gt;::Address)&gt;;
+  fn proxy_error_writer (&amp;mut self, &amp;mut Self::TR) -&gt; Result&lt;(Self::EW, &lt;Self::P as Peer&gt;::Address)&gt;;
+  fn read_error(&amp;mut self, &amp;mut Self::TR) -&gt; Result&lt;usize&gt;;
+}
+</code></pre>
+
+<p>Very similar to reply info. EW the error writer is similar to a reply writer but it only replies an id (so not ExtWrite), similarily there is no specific writer and proxy implementation (TunnelNoHop implementation need to manage those case) :</p>
+
+<pre><code class="language-rust">pub trait TunnelErrorWriter {
+  fn write_error&lt;W : Write&gt;(&amp;mut self, &amp;mut W) -&gt; Result&lt;()&gt;;
+}
+</code></pre>
+
+<p>No content to write as the error id is contained in the writer. We can see here that some issue will occurs in mydht or any real use case : the error code is taken from the tunnel object (method &lsquo;get_current_error_info&rsquo;) and with multiple routing that is really not convenient, EI should be use as parameter if the TunnelError trait but we can keep it as a TODO until actual integration.</p>
+
+<h2 id="tunnelmanager">TunnelManager</h2>
+
+<p>A Tunnel but with caching capability, &lsquo;Full&rsquo; implementation requires this constraint. If splitting &lsquo;Full&rsquo; implementation into its different mode, the mode with all info contained in its frame will not need it.</p>
+
+<pre><code class="language-rust">pub trait TunnelManager : Tunnel + CacheIdProducer where Self::RI : RepInfo,
+Self::TR : TunnelReader&lt;RI=Self::RI&gt;
+{
+  type SSCW : ExtWrite;
+  type SSCR : ExtRead;
+  fn put_symw(&amp;mut self, &amp;[u8], Self::SSCW, &lt;Self::P as Peer&gt;::Address) -&gt; Result&lt;()&gt;;
+  fn get_symw(&amp;mut self, &amp;[u8]) -&gt; Result&lt;(Self::SSCW,&lt;Self::P as Peer&gt;::Address)&gt;;
+  fn put_symr(&amp;mut self, Self::SSCR) -&gt; Result&lt;Vec&lt;u8&gt;&gt;;
+  fn get_symr(&amp;mut self, &amp;[u8]) -&gt; Result&lt;Self::SSCR&gt;;
+  fn use_sym_exchange (&amp;Self::RI) -&gt; bool;
+  fn new_sym_writer (&amp;mut self, Vec&lt;u8&gt;, Vec&lt;u8&gt;) -&gt; Self::SSCW;
+  fn new_dest_sym_reader (&amp;mut self, Vec&lt;Vec&lt;u8&gt;&gt;) -&gt; Self::SSCR;
+}
+</code></pre>
+
+<p>A cache for peer is used and and symetric writer can be build from it for proxying plus dest multisim read. Notice the CacheId constraint a trait for producing unique cacheid between peers.</p>
+
+<h2 id="tunnelmanagererror">TunnelManagerError</h2>
+
+<p>A tunnel with error return capability and a cache</p>
+
+<pre><code class="language-rust">pub trait TunnelManagerError : TunnelError + CacheIdProducer where  Self::EI : Info,
+Self::TR : TunnelReaderError&lt;EI = Self::EI&gt;
+{
+  fn put_errw(&amp;mut self, &amp;[u8], Self::EW, &lt;Self::P as Peer&gt;::Address) -&gt; Result&lt;()&gt;;
+  fn get_errw(&amp;mut self, &amp;[u8]) -&gt; Result&lt;(Self::EW,&lt;Self::P as Peer&gt;::Address)&gt;;
+  fn put_errr(&amp;mut self, &amp;[u8], Vec&lt;Self::EI&gt;) -&gt; Result&lt;()&gt;;
+  fn get_errr(&amp;mut self, &amp;[u8]) -&gt; Result&lt;&amp;[Self::EI]&gt;;
+}
+</code></pre>
+
+<p>Same as reply for cache.
+with</p>
+
+<pre><code class="language-rust">pub trait TunnelReaderError : TunnelReaderNoRep {
+  type EI;
+  fn get_current_error_info(&amp;self) -&gt; Option&lt;&amp;Self::EI&gt;;
+}
+</code></pre>
+
+<h2 id="symprovider">SymProvider</h2>
+
+<pre><code class="language-rust">pub trait SymProvider&lt;SSW,SSR&gt; {
+  fn new_sym_key (&amp;mut self) -&gt; Vec&lt;u8&gt;;
+  fn new_sym_writer (&amp;mut self, Vec&lt;u8&gt;) -&gt; SSW;
+  fn new_sym_reader (&amp;mut self, Vec&lt;u8&gt;) -&gt; SSR;
+}
+</code></pre>
+
+<p>Used to create a new symetric reader or writer. In mydht this kind of scheme (symetric cyphering) could already be use post authentication as the message shadower (but its implementation is into &lsquo;Peer).</p>
+
+<h2 id="routeprovider">RouteProvider</h2>
+
+<pre><code class="language-rust">pub trait RouteProvider&lt;P : Peer&gt; {
+  fn new_route (&amp;mut self, &amp;P) -&gt; Vec&lt;&amp;P&gt;;
+  fn new_reply_route (&amp;mut self, &amp;P) -&gt; Vec&lt;&amp;P&gt;;
+}
+</code></pre>
+
+<p>Trait to initiate tunnel peers choice, it will probably need to be linked somehow with MyDHT peer KVStore.</p>
+
+<h1 id="tunnel-and-mydht-interaction">tunnel and mydht interaction??</h1>
+
+<p>From this point this post will certainly be gibberish, more prelimenary thoughts.</p>
+
+<h2 id="considering-only-on-time-unidirectional-message">considering only on time unidirectional message</h2>
+
+<p>We have seen that our mydht may contain a TunnelNoRep implementation.
+For &lsquo;Full&rsquo;, full content is</p>
+
+<pre><code class="language-rust">pub struct Full&lt;TT : GenTunnelTraits&gt; {
+  pub me : TT::P,
+  pub reply_mode : MultipleReplyMode,
+  pub error_mode : MultipleErrorMode,
+  pub cache : TT::TC,
+  pub route_prov : TT::RP,
+  pub reply_prov : TT::REP,
+  pub sym_prov : TT::SP,
+  pub tunrep : TT::TNR,
+  pub error_prov : TT::EP,
+  pub rng : ThreadRng,
+  pub limiter_proto_w : TT::LW,
+  pub limiter_proto_r : TT::LR,
+  pub reply_once_buf_size : usize,
+  pub _p : PhantomData&lt;TT&gt;,
+}
+</code></pre>
+
+<p>problematics are :
+- me : should be a Ref&lt;Peer&gt; (in mydht we use Ref&lt;P&gt;)
+- cache : a cache can only be at one location so our Tunnel implementation needs to be at a single place
+- route_prov : a route provider, same restriction as previous cache plus the fact that it needs to build its route from a source of peers</p>
+
+<h2 id="usage-of-peerref">usage of PeerRef</h2>
+
+<p>simply implement route peer for the peerref of peer : that way even without peerref in tunnel crate we use peerref from.</p>
+
+<p>Something like thise will be added to the adapter (I tried it in different context and expect it to be impossible in rust, we may simply implement for every Ref)</p>
+
+<pre><code class="language-rust">impl&lt;P : MPeer,RP : Borrow&lt;P&gt;&gt; TPeer for RP {
+
+</code></pre>
+
+<p>Edit : some bad ideas, finally I simply globally use a Ref&lt;Peer&gt; (the MyDHT associated RP type) as our Tunnel peer. This way tunnel crate does not change and still only manipulate peers but in mydht-tunnel context, those are reference to peer object.</p>
+
+<h2 id="usage-of-peers-from-mydht-to-build-route">usage of peers from mydht to build route</h2>
+
+<ul>
+<li>from mydht mainloop peercache : only connected peers should be use to ensure that the message got a minimal chance to be send. This is higly unsecure as we know which peer connection we have established.</li>
+<li>from mydht default peerstorage : issue of unconnected peer</li>
+<li>from a global service where we exchange reachable peers : a store of peers initiated from connected peercache and communication of peers</li>
+</ul>
+
+<h2 id="location-of-the-tunnel">location of the tunnel</h2>
+
+<ul>
+<li><p>out of mydht implementation, sending query to the global peer manager service, this tunnel is include in a transport.</p></li>
+
+<li><p>a route service communicating with peerstore and mainloop</p>
+
+<ul>
+<li>use of mydht global service : so the mydht instance is only here to produce route (with peer exchange and management) and include in transport use by another mydht instance</li>
+<li>use of a service spawn from transport : a tunnel transport over another transport : bad as peer exchange is done with this transport.</li>
+</ul></li>
+
+<li><p>in the global service : best but means that the mydht is specific to tunnel (an inner service can be use and/or sending receiving from outside), plus in mydht global service can easily send query to peerstore or mainloop (especially using a subset on peerstore : probably need to create a second variant of subset being more random : currently subset is a mix of random and not random depending on implementation , which broke a lot of tests).
+    Still having to keep a local cache of connected peer in global service is painfull and racy (only the cache in mainloop is fine). &lsquo;RouteProvider&rsquo; should be merge with the mainloop peer cache implementation, and use a synchronized connected peer cache (threading seems necessary).</p></li>
+</ul>
+
+<h2 id="tunnel-as-a-transport">Tunnel as a transport</h2>
+
+<p>The first idea is to use tunnel as a transport as we could have implemented a transport between tor hidden services.
+* what match with mydht transport</p>
+
+<ul>
+<li>we send queries with a destination</li>
+
+<li><p>connect could simply get the route</p></li>
+
+<li><p>what does not match</p></li>
+
+<li><p>we do not authenticate (mydht allows it)</p></li>
+
+<li><p>origin of a received query is hidden, we only got origin of proxying peer : not such a big issue, just that service implementation must be independant of origin.</p></li>
+
+<li><p>replying without an origin can only be done with frame content by spawning a reply writer with a dest peer which can be different (here we may need to borrow the inner write stream).</p></li>
+
+<li><p>proxying on read content requires to get the handle on a inner write stream (like if tunnel as a transport should include a mydht instance).</p></li>
+</ul>
+
+<p>This all seems bad, it should be possible, doable with an established tunnel (not curently implemented in tunnel I think) : with an established tunnel the main problem is that origin is unknow -&gt; so we need to run with no authentication mydht mode.
+We could run with authentication too (peer transmit in ping is fine in this case).</p>
+
+<h2 id="mydht-as-tunnel-reader-writer-provider">MyDHT as tunnel reader/writer provider</h2>
+
+<p>tunnel is currently running over reader and writer : similart to mydht transport streams.
+MyDHT could be route provider implementation (all tools are here).</p>
+
+<p>This is true for sending, not for reading, we could use local service for this specific reading code. Therefore we also could put tunnel main struct into global service (single instance) : seems better.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Tunnel should be into global service (only one cache and communication with possible route provider).<br />
+Sending query is therefore done by global service on a new write stream or by a special message for write stream containing peers for route and inner service query : the message encoder used will call tunnel primitive.<br />
+Proxing and replying will probably needs to be done from local service and by using special message decoder (command being reply or proxy).</p>
+
+<h1 id="next-steps">Next steps</h1>
+
+<p>First step should be to create a mydht-tunnel crate with tunnel used from a mydht global service (which can retrieve route and needed inner transport stream with two modes or one only) :</p>
+
+<ul>
+<li>borrowing stream : to avoid openning to much transport : this would require some specific mainloop implementation (similar to query of mainloop cache on some peerstore query) and may block the inner dht a lot</li>
+<li>sending new write stream : more realist : this would be done through global service
+Read of message would be done in local service (require that local service got access to read stream or to put specific processing in MsgEnc trait)</li>
+<li>if dest then local service read content and send it to global service</li>
+<li>if proxy then local service open a new connection (borrowing not for initial implementation)</li>
+<li>a specific message dec/enc will be use : it will allow to build frame from write stream and to read if proxy or query local command from read stream</li>
+</ul>
+
+<p>Proxying is also done in localservice (localservice need to get a write stream from mainloop) after querying for state (by queryid to get shadower) in global service or by geting stream writer from mainloop (no queryid : in query).
+An inner service for replying could be called from global or local depending on the fact that reply is possible by being include in frame (local service) or by using tunnelcache (global service).</p>
+
+<p>Second step would be to implement transport from this implementation (this transport will spawn new route at each message sending : very slow but nice).</p>
+
+<p>This design means that local service must have access to read stream, an alternative would be to let local service send a mainloop new command with its read token and forward this command to the right write service (proxy done in write service), from this point let mainloop close the read service (as if command end was received) and append its stream in the write command (a special trait is needed similar to the one use to make local query in mainloop).<br />
+Something like MainLoopCommand::EndReadProxyWriteWithStream(p::address,option&lt;write_token&gt;,localservicecommand).<br />
+Then the write special serializer will have a message containing the readstream and making it possible to inline proxy. That seems better and can apply to reply to (in this case the reply need to be include in the command from localservice). This seems better ordered than waiting on connection and write stream from reader.</p>
+
+<p>Edit : last method was use, with the difference that borrowing of read stream was done in read service (instead of mainloop), and read service switch to a stale state (could theorically be reuse if read stream is send back).</p>
+
+      </div>
+    </article>
+    <aside class="ph3 mt2 mt6-ns">
+      
+
+
+
+
+
+
+
+  <div class="bg-light-gray pa3">
+    <ul>
+      <li class="list b mb3">
+        4 More Posts
+      </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/tunnel_imp/" class="link ph2 pv2 db black">
+            Implementing MyDHT tunnel
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/tunnel/" class="link ph2 pv2 db black o-50">
+            Tunnel crate and MyDHT ?
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/sync_transport/" class="link ph2 pv2 db black">
+            Allowing both blocking and non-blocking transport
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process2/" class="link ph2 pv2 db black">
+            MyDHT service usage switch (part 2)
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process1/" class="link ph2 pv2 db black">
+            MyDHT Refactoring And Threading (part 1)
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+    </aside>
+  </div>
+
+    </main>
+    <footer class="bg-near-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://cheme.github.io/" >
+    &copy; 2017 Émeric misexperiment blog
+  </a>
+  
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+  </div>
+</footer>
+
+    <script src="https://cheme.github.io/dist/app.bundle.js" async></script>
+
+  </body>
+</html>
