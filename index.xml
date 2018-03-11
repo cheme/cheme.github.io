@@ -6,10 +6,21 @@
     <description>Recent content on Émeric misexperiment blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 12 Nov 2017 11:06:08 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 11 Mar 2018 01:02:08 +0200</lastBuildDate>
     
 	<atom:link href="https://cheme.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Voting machine POC</title>
+      <link>https://cheme.github.io/posts/voting_machine/</link>
+      <pubDate>Sun, 11 Mar 2018 01:02:08 +0200</pubDate>
+      
+      <guid>https://cheme.github.io/posts/voting_machine/</guid>
+      <description>This blog post describes a POC of a Voting Machine. It may look more like a Roadmap or a backlog for myDHT, yet it still is an example of a myDHT application.
+The code is hosted on github.
+The protocol Description A simple protocol, between each step should be added synchro period where we check distribution or synchro of each peers but it is not done at this point :</description>
+    </item>
     
     <item>
       <title>Implementing MyDHT tunnel</title>

@@ -9,7 +9,7 @@
     <meta name="MobileOptimized" content="320">
 
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="generator" content="Hugo 0.30.2" />
+    <meta name="generator" content="Hugo 0.37.1" />
     
     
       <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
@@ -56,7 +56,8 @@ Those non blocking transports behave similarily as non-blocking Tcp scocket by r
 
 
 <meta itemprop="keywords" content="programming,design,rust,tcp," />
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Allowing both blocking and non-blocking transport"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Allowing both blocking and non-blocking transport"/>
 <meta name="twitter:description" content="initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
 Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error)."/>
 
@@ -331,8 +332,15 @@ There is no need to disable this service when running with non blocking transpor
   <div class="bg-light-gray pa3">
     <ul>
       <li class="list b mb3">
-        4 More Posts
+        5 More Posts
       </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/voting_machine/" class="link ph2 pv2 db black">
+            Voting machine POC
+          </a>
+        </li>
       
         <li class="list f5 w-100 hover-bg-white nl1">
           
@@ -380,7 +388,7 @@ There is no need to disable this service when running with non blocking transpor
     <footer class="bg-near-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
   <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://cheme.github.io/" >
-    &copy; 2017 Émeric misexperiment blog
+    &copy; 2018 Émeric misexperiment blog
   </a>
   
 

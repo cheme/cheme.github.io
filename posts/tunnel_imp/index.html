@@ -9,7 +9,7 @@
     <meta name="MobileOptimized" content="320">
 
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="generator" content="Hugo 0.30.2" />
+    <meta name="generator" content="Hugo 0.37.1" />
     
     
       <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
@@ -58,7 +58,8 @@ This post will describe some of the change upon tunnel and mydht, mainly needed 
 
 
 <meta itemprop="keywords" content="programming,tunnel,design,rust," />
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Implementing MyDHT tunnel"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Implementing MyDHT tunnel"/>
 <meta name="twitter:description" content="Last post, we gave some thoughts on tunnel and mydht interaction,concluding that a mydht specific implementation specific for tunnel should be build (and in a second time maybe use it in a transport).
 That was done for a single mode of &lsquo;Full&rsquo; tunnel : the mode that does not require caching. Cache usage mode and error reporting implementation are still incomplete but shall follow similar steps.
 This post will describe some of the change upon tunnel and mydht, mainly needed to run within multithreaded environment with non blocking transport stream."/>
@@ -506,8 +507,15 @@ Two possibilities here :
   <div class="bg-light-gray pa3">
     <ul>
       <li class="list b mb3">
-        4 More Posts
+        5 More Posts
       </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/voting_machine/" class="link ph2 pv2 db black">
+            Voting machine POC
+          </a>
+        </li>
       
         <li class="list f5 w-100 hover-bg-white nl1">
           
@@ -555,7 +563,7 @@ Two possibilities here :
     <footer class="bg-near-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
   <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://cheme.github.io/" >
-    &copy; 2017 Émeric misexperiment blog
+    &copy; 2018 Émeric misexperiment blog
   </a>
   
 

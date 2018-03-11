@@ -9,7 +9,7 @@
     <meta name="MobileOptimized" content="320">
 
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="generator" content="Hugo 0.30.2" />
+    <meta name="generator" content="Hugo 0.37.1" />
     
     
       <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
@@ -32,7 +32,7 @@
 
 
 
-<meta property="og:updated_time" content="2017-11-12T11:06:08&#43;02:00"/>
+<meta property="og:updated_time" content="2018-03-11T01:02:08&#43;02:00"/>
 
 
 
@@ -46,7 +46,8 @@
 <meta itemprop="name" content="Émeric misexperiment blog">
 <meta itemprop="description" content="Blogging about personal projects">
 
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Émeric misexperiment blog"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Émeric misexperiment blog"/>
 <meta name="twitter:description" content="Blogging about personal projects"/>
 
   </head>
@@ -136,6 +137,32 @@
       
       <div class="blah w-100">
         <h1 class="f3 fw1 athelas mt0 lh-title">
+          <a href="/posts/voting_machine/" class="color-inherit dim link">
+            Voting machine POC
+            </a>
+        </h1>
+        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
+          This blog post describes a POC of a Voting Machine. It may look more like a Roadmap or a backlog for myDHT, yet it still is an example of a myDHT application.
+The code is hosted on github.
+The protocol Description A simple protocol, between each step should be added synchro period where we check distribution or synchro of each peers but it is not done at this point :
+        </div>
+          <a href="/posts/voting_machine/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
+        
+      </div>
+    </div>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb4">
+            
+<article class="bb b--black-10">
+  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
+    <div class="flex flex-column flex-row-ns">
+      
+      <div class="blah w-100">
+        <h1 class="f3 fw1 athelas mt0 lh-title">
           <a href="/posts/tunnel_imp/" class="color-inherit dim link">
             Implementing MyDHT tunnel
             </a>
@@ -181,37 +208,18 @@ It defines the various traits for operations associated with this problematics :
 
           </div>
         
-          <div class="relative w-100 mb4">
-            
-<article class="bb b--black-10">
-  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
-    <div class="flex flex-column flex-row-ns">
-      
-      <div class="blah w-100">
-        <h1 class="f3 fw1 athelas mt0 lh-title">
-          <a href="/posts/sync_transport/" class="color-inherit dim link">
-            Allowing both blocking and non-blocking transport
-            </a>
-        </h1>
-        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
-          initial non blocking implementation In previous posts, MyDHT was redesign to include a main event loop (using mio) and manage non-blocking transport implementation from a central mainloop process.
-Those non blocking transports behave similarily as non-blocking Tcp scocket by returning an error (&ldquo;would block&rdquo;) when not ready for operation. The mainloop polled registered event for those operations : connection incomming, read and write stream availability. Once polled operation are restored : for connection state is changed, for read and write streams service associated with those operation is unyield (the service was suspend on &lsquo;would block&rsquo; error).
-        </div>
-          <a href="/posts/sync_transport/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
-        
-      </div>
-    </div>
-  </div>
-</article>
-
-          </div>
-        
       </section>
 
     
       <section class="w-100">
         <h1 class="f3">More</h1>
         
+        
+          <h2 class="f5 fw4 mb4 dib mr3">
+            <a href="/posts/sync_transport/" class="link black dim">
+              Allowing both blocking and non-blocking transport
+            </a>
+          </h2>
         
           <h2 class="f5 fw4 mb4 dib mr3">
             <a href="/posts/process2/" class="link black dim">
@@ -240,7 +248,7 @@ Those non blocking transports behave similarily as non-blocking Tcp scocket by r
     <footer class="bg-near-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
   <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://cheme.github.io/" >
-    &copy; 2017 Émeric misexperiment blog
+    &copy; 2018 Émeric misexperiment blog
   </a>
   
 

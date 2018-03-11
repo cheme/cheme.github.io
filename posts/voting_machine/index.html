@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Émeric misexperiment blog  | Voting machine POC</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="generator" content="Hugo 0.37.1" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    <link href='https://cheme.github.io/dist/main.css' rel='stylesheet' type="text/css" />
+    
+      
+    
+
+    
+
+    <meta property="og:title" content="Voting machine POC" />
+<meta property="og:description" content="This blog post describes a POC of a Voting Machine. It may look more like a Roadmap or a backlog for myDHT, yet it still is an example of a myDHT application.
+The code is hosted on github.
+The protocol Description A simple protocol, between each step should be added synchro period where we check distribution or synchro of each peers but it is not done at this point :" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://cheme.github.io/posts/voting_machine/" />
+
+
+
+<meta property="article:published_time" content="2018-03-11T01:02:08&#43;02:00"/>
+
+<meta property="article:modified_time" content="2018-03-11T01:02:08&#43;02:00"/>
+
+
+
+
+
+
+
+
+
+
+
+<meta itemprop="name" content="Voting machine POC">
+<meta itemprop="description" content="This blog post describes a POC of a Voting Machine. It may look more like a Roadmap or a backlog for myDHT, yet it still is an example of a myDHT application.
+The code is hosted on github.
+The protocol Description A simple protocol, between each step should be added synchro period where we check distribution or synchro of each peers but it is not done at this point :">
+
+
+<meta itemprop="datePublished" content="2018-03-11T01:02:08&#43;02:00" />
+<meta itemprop="dateModified" content="2018-03-11T01:02:08&#43;02:00" />
+<meta itemprop="wordCount" content="3128">
+
+
+
+<meta itemprop="keywords" content="programming,p2p,design,rust,vote," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Voting machine POC"/>
+<meta name="twitter:description" content="This blog post describes a POC of a Voting Machine. It may look more like a Roadmap or a backlog for myDHT, yet it still is an example of a myDHT application.
+The code is hosted on github.
+The protocol Description A simple protocol, between each step should be added synchro period where we check distribution or synchro of each peers but it is not done at this point :"/>
+
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://cheme.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      Émeric misexperiment blog
+    </a>
+    <div class="flex-l items-center">
+      
+      
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+  <div class="flex-l mt2 mw8 center">
+    <article class="center cf pv5 ph3 ph4-ns mw7">
+      <header>
+        <p class="f6 b helvetica tracked">
+          POSTS
+        </p>
+        <h1 class="f1">
+          Voting machine POC
+        </h1>
+      </header>
+      <div class="nested-copy-line-height lh-copy f4 nested-links nested-img mid-gray">
+        
+
+<p>This blog post describes a POC of a Voting Machine. It may look more like a Roadmap or a backlog for myDHT, yet it still is an example of a myDHT application.</p>
+
+<p>The code is hosted on <a href="https://github.com/cheme/votingmachine">github</a>.</p>
+
+<h1 id="the-protocol">The protocol</h1>
+
+<h2 id="description">Description</h2>
+
+<p>A simple protocol, between each step should be added synchro period where we check distribution or synchro of each peers but it is not done at this point :</p>
+
+<ul>
+<li><p>a vote description is initiated, with a subject, and possible answers. It is given an Id. It is issued for specific users (votant). At this point wether it is public vote description or not depends. If public, the commitment of a secret key distributed to votant should be added to this description (mitigate exterior false envelope but votant could still distribute the secret key or emit multiple envelope).</p></li>
+
+<li><p>we enter envelope period : each peer with access to the vote description will generate a Envelope (key pair) and share it (not the private key obviously) anonymously.
+Anomously is very important here : there must be no easy way to relate an envelope with a votant. The key on the envelope are mostly from an initial design where we did not add a commitment of the vote in the envelope. Here we choose to add such a commitment in the envelope (crypto hash of vote value and a random nonce), and the key on envelope is useless unless we want to ratach other info than the vote to this envelope later.</p></li>
+
+<li><p>At the end of envelope period (no new envelope expected), every peer search for all envelope, and check them.</p></li>
+
+<li><p>We enter participation period : peer sign the envelopes and send their participation (this sign).</p></li>
+
+<li><p>End of participation period, peer vote if all participant and envelope seems ok with him (number of envelope/number of participant, same envelope report in all participation&hellip;), if wrong he transmit the issue somehow and vote stop (need to reemit envelopes and possibly republished a vote description with new secret key).</p></li>
+
+<li><p>Anonymous send of its vote reply (signed by its own envelope pkey and if using a comitment in envolope, add the commitment nonce to this vote).</p></li>
+
+<li><p>End of vote periode. Every voter can open all replies and update their vote results (after valdating replies of course (no dup&hellip; two reply for an enveloppe invalidate the envelope&hellip;)).</p></li>
+
+<li><p>Synchro of results between votant to reach consensus. If using a commitment this step is less useful as it is harder to send a vote afterwards to change/invalidate the vote (unsing signing from envelope we could issue different reply).</p></li>
+</ul>
+
+<p>In short it is simply a protocol where votes are sent anonymously and where every users verify individually their votes presence to validate the process. The fact that we need confirmation from every votant make it somehow unpracticable.</p>
+
+<h2 id="issues">Issues</h2>
+
+<ul>
+<li>Main issue with this protocol is the validation of envelope. Envelope being publicaly signed (hash), any enveloppe can be emit (by a cheating participant or from a non participant if votedesc is leaked).</li>
+<li>Vote signed by envelope is a little overdoing it : the purpose is to illustrate some striple usage. Putting a hash of the vote plus a nonce (commitment) in the envelope is enough. Yet looking at how frequently participation synch is likely to fail not even a commitment is harmless (failure of rng for commitment without impact). Their is also a caveat here : envelope could be use to produce multiple vote so the initial commitment may look better except if we say that multiple vote from an enveloppe invalidate this vote (thus the need to synchronize the vote).</li>
+
+<li><p>Anonymous send is probably one of the main weakness : in the poc we will use some form of tunneling. With some non interactive zero knowledge proof their might be something to do with some unique secret key distribution between peers and a bloom filter circuit for proof, but it would require that the resulting zkproof got some unicity property to be of some interest, I do not know such a proof.</p></li>
+
+<li><p>The temporality (limit each steps) is fine if we ensure that every votant are able to access the network fairly. Blockchain based publication is an easy way to manage it but this POC is intended to stay out of chain (a votedesc context could be seen as small sidechain), but at some point it is good idea at least publish some end of period state on a existing chain to facilitate and prove access to info.</p></li>
+</ul>
+
+<h1 id="the-poc">The POC</h1>
+
+<h2 id="why-a-poc-proof-of-concept">Why a POC (Proof Of Concept) ?</h2>
+
+<ul>
+<li>MyDHT is far from usable and too generic in many ways. So beta trying it is the best way to get some roadmap.</li>
+<li>Vote protocol is nice for its simplicity (scaling is something else and the envelope synchronisation scenario is not practical due to the ease of DDosing it (a single malicious votant is enough)). It may also be reuse to experiment some different approach of running scenario where a votant cheat and we isolate this through subvoting (trying to not compromise to much the vote anonymousity).</li>
+<li>Involves some anonymity so a nice test for &lsquo;mydht-tunnel&rsquo; crate.</li>
+<li>Use of striple, striple is an old lib that I write but except for its command line usage I never really use it.</li>
+</ul>
+
+<h2 id="should-anyone-use-it">Should anyone use it?</h2>
+
+<p>Of course not, it is a POC and I believe this post will show that it is far from usable regarding the current state of myDHT.</p>
+
+<p>So the POC is intended to be a straight forward implementation of the protocol. The goals being to demonstrate a Mydht usage involving two MyDHT instances.</p>
+
+<p>So the comminucation of a single broadcast, no querying implemented&hellip;</p>
+
+<p>The POC does not include any kind of error management (user should send its striple of error) or queries when content is missing : if something goes wrong it panics.</p>
+
+<p>In the POC we start with existing configuration, notably the voteconf with the list of votant.</p>
+
+<h2 id="poc-target">Poc target</h2>
+
+<p>Reaching this line (using run_multi_peer.sh script) of src/service.rs :</p>
+
+<pre><code class="language-rust">println!(&quot;Find my vote and received all votes!!!!!&quot;);
+</code></pre>
+
+<p>At this line my client did send and find all envelope, participation and vote. All those those are validated and my clients own element were recognized.</p>
+
+<h1 id="anodht">AnoDHT</h1>
+
+<p>The POC send its message using two different instances of MyDHT, the first for normal exchanges (maindht) and the second for sending message through tunnels. Tunnels building and proxying is done with &lsquo;mydht-tunnel&rsquo; default implementation (mydht tunnel trait conf similar to a mydht trait conf still need to be implemented) in a second myDHT instance.</p>
+
+<h2 id="tunnel">Tunnel</h2>
+
+<p>The limiter use by the tunnel is the limiter from &lsquo;sized_windows_lim&rsquo; crate. This was a good choice as it let me find some bugs with some combination of openssl eas padding,  the size of the limiter and the read buffer size (related to proxying ciphered padding). It is certainly not the right limiter to use.</p>
+
+<p>The symetric shadow is some eas cbc 256 from openssl, and the symetric key exchange done through some peer RSA 2048 key.</p>
+
+<p>The tunnel length is 4 :</p>
+
+<pre><code>  const INIT_ROUTE_LENGTH : usize = 4;
+</code></pre>
+
+<p>meaning that we use only two intermediatory/proxy peers. No bias is currently defined (easier to test with a small peer pool).</p>
+
+<h2 id="peer">Peer</h2>
+
+<p>The peer struct for both dht (ano and main) is the same, it is a standard RSA peer from mydht-openssl crate plus a secondary address and striple informations.</p>
+
+<pre><code class="language-rust">pub struct StriplePeer&lt;A : KVContent,B : Address,C : OpenSSLConf, S : StripleKind&gt; {
+  pub inner : RSAPeer&lt;A,B,C&gt;,
+  id : Vec&lt;u8&gt;,
+  from : Vec&lt;u8&gt;,
+  sig : Vec&lt;u8&gt;,
+  pub secaddress : B,
+</code></pre>
+
+<p>In main.rs :</p>
+
+<pre><code class="language-rust">type RSAPeer = StriplePeer&lt;String,SerSocketAddr,RSA2048SHA512AES256,Rsa2048Sha512&gt;;
+</code></pre>
+
+<p>String is some random peer content, SerSocketAddr is IpV4 address, RSA2048SHA512AES256 is the conf type for the mydht peer, Rsa2048Sha512 is the striple definition for peer as a striple.</p>
+
+<p>A struct &lsquo;AnoPeer&rsquo; redefine peer traits implementation for the AnoDHT (to use the right address (not the same one as in the maindht).
+Note that the peer use the same key pair in mydht and anodht : that is not a good idea (.</p>
+
+<p>NoAuth usage : authentication in the tunnel does not make a lot of sense and have not really been tested. At some point we should limit the allowed peers (through peer mgmt interface), and then we could try to activate it.</p>
+
+<h2 id="service">Service</h2>
+
+<p>The spawner : configured to run on threads, I do not really care for this POC.</p>
+
+<p>Local/global inner tunnel service : we use the &lsquo;mydht-tunnel&rsquo; dht basis trait, so their is no distinction between global and local service. The default ano dht implementation, it sends a value (vote or envelope) to random peer through a predefined tunnel length or if receiving it sends the value to the mainDHT (through main dht api channel). So the service is only containing a reference to the user Peer and the Maindht Api Channel and code could be resume to :</p>
+
+<pre><code class="language-rust">    match req {
+      GlobalCommand::Distant(_opr,AnoServiceICommand(StoreAnoMsg::STOREENVELOPE(envelope))) =&gt; {
+        let enveloperef = ArcRef::new(MainStoreKV::Envelope(envelope));
+        let c_store_env = ApiCommand::call_service(MainKVStoreCommand::Store(KVStoreCommand::StoreLocally(enveloperef,1,None)));
+        self.1.send(c_store_env)?;
+        Ok(GlobalTunnelReply::NoRep)
+      },
+      GlobalCommand::Distant(_opr,AnoServiceICommand(StoreAnoMsg::STOREVOTE(vote))) =&gt; {
+        let voteref = ArcRef::new(MainStoreKV::Vote(vote));
+        let c_store_vote = ApiCommand::call_service(MainKVStoreCommand::Store(KVStoreCommand::StoreLocally(voteref,1,None)));
+        self.1.send(c_store_vote)?;
+        Ok(GlobalTunnelReply::NoRep)
+      },
+      GlobalCommand::Local(AnoServiceICommand(StoreAnoMsg::STOREENVELOPE(envelope))) =&gt; {
+        // proxy message
+        Ok(GlobalTunnelReply::SendCommandToRand(AnoServiceICommand(StoreAnoMsg::STOREENVELOPE(envelope))))
+      },
+      GlobalCommand::Local(AnoServiceICommand(StoreAnoMsg::STOREVOTE(vote))) =&gt; {
+        // proxy message
+        Ok(GlobalTunnelReply::SendCommandToRand(AnoServiceICommand(StoreAnoMsg::STOREVOTE(vote))))
+      },
+    }
+</code></pre>
+
+<h3 id="tunnel-construction">Tunnel construction</h3>
+
+<p>The main difficulty with the tunneled message is to build a route from a set of peer that would not leak information : obviously in the POC it is not very solid.
+- The choice of peer is route building is inner to &lsquo;mydht-tunnel&rsquo; : Rp default implementation of &lsquo;RouteProvider&rsquo; trait as described in a previous post (plus an additional function to choose a random recipient).
+- At this time it is not trully random because we do not allow us to be in the tunnel as myDHT do not allow to manage ourselve as a peer (our peer is simply not in the pool of selectable peers), &lsquo;Rp&rsquo; could be allowed to optionaly insert our peer at intermediatory position (still biased as it is an always reachable peer).<br />
+  Another huge problematic is the connection pool (analysis of established connection leaking those peer selection) : using an unreachable user in the middle of the tunnel is bad (can be detected with error returned (not used in poc) or timeout) because it implies a retry with another route which is indeed a leak of information. So anodht should maintain a reachable user pool in a random way (in the POC the pool is of size of the route so it is realy easy to analyse by looking at anodht connections).
+  - RandomRoute struct is use as a Routing implementation, it is useless in this case but the code should move to mydht (routing to random n peers would be nice to have), it involves an additional trait on the connected peer cache : &lsquo;IndexableWriteCache&rsquo;.</p>
+
+<p>As say before, connected peer pool is currently only build from conf (json containing other peers info). The connection is done through anodht peer pool size adjustment.</p>
+
+<p>Next thing to do for anodht peer pool management (before trying to maintain some pool) :
+- activate PeerStatusListener on maindht global
+- on peeronline message in maindht global : send message to add/connect peer to anodht (a GlobalTunnelCommand::NewOnline), idem for offline. That way we do not double manage our peer (same peer type basis for both dht).
+- remove peer from anodht peerstore (peerstore should be disable by using a NoSpawn and disabling peer discovery for anodht)
+- when pool from anodht is to small to build route, do not send the PoolSize modification to the andodht but to the maindht instead (need to change SendCommandToRand to callback to inner service on missing peer).
+  This is very important as currently if initial peers do not have the right address, it can not change (or anodht interpeer message does not allow peer query while maindht can), so at the time the anodht pool is very static we simply try to connect. It also makes the nat traversal a bit useless.</p>
+
+<h1 id="maindht">MainDHT</h1>
+
+<h2 id="peer-1">Peer</h2>
+
+<p>Same StriplePeer struct as before but with native traits implementation (not using AnoPeer).</p>
+
+<p>Public authentication scheme : openssl default auth shadower is only usable in private mode so it is disabled for StriplePeer.</p>
+
+<p>Use of openssl message shadower by using common RSAPeer keys.</p>
+
+<h2 id="service-1">Service</h2>
+
+<p>Spawner : configured to run on threads</p>
+
+<p>Protocol implemented in global service, so no local service usage.</p>
+
+<p>The implementation of the protocol, it is a bit messy and should be refactor (lot of useless clone due to an initial filtering idea of the inner KVStore service message).</p>
+
+<p>Protocol steps are chained in the global service, and involve :
+- exchange messages and validation.
+  - broadcast publicly to all vote peers (either our message or a message from another unknown peer received in anodht (vote or envelope)).
+  - send to a random peer through a tunnel by using the anodht instance.
+- validate content and chain task when condition reached, there is striple validation but also two hand written one :
+  - commitment of envelope matching its vote revealed commitment parameters.
+  - participation envelope set identique between all participation messages (currently simply check of all ids, a simple merkle tree root hash would be more suitable).</p>
+
+<p>For instance:</p>
+
+<pre><code class="language-rust">// make vote (sign by enveloppe, about votedesc)
+let vote = Vote::new(&amp;(&amp;context.my_envelope,&amp;context.my_envelope_priv_key), &amp;context.vote_desc, context.my_reply.clone())?;
+
+//assert!(vote.check(&amp;context.my_envelope).map_err(|e|StripleMydhtErr(e))?);
+
+context.my_vote = Some(vote.clone());
+// share votes (store + query all) in anonymous dht
+let c_store_vote = GlobalTunnelCommand::Inner(AnoServiceICommand(StoreAnoMsg::STOREVOTE(vote)));
+
+//send ano vote
+let command = ApiCommand::call_service(c_store_vote);
+self.ano_dhtin.send(command)?;
+</code></pre>
+
+<p>Note that MainDHT as been build other a standard KVStore, it was a bad choice as we do not query and only push. Yet I keep the definition as it is, most of the service code benefit from additional common tools to include to the standard kvstore service (broadcast first).</p>
+
+<h2 id="todo">TODO</h2>
+
+<ul>
+<li>Error management by sending a descriptive striple to a abort vote (similar to ko participation message).</li>
+<li>Simple KV discovery</li>
+</ul>
+
+<h1 id="striple">Striple</h1>
+
+<p>Use of <a href="https://github.com/cheme/rust-striple">striple</a> library is not really usefull, but a POC is a good place to try using it.</p>
+
+<p>Lot of refactoring on the lib was done to be able make a rust struct a striple simply (initially a struct would need to be converted to a simple striple implementation), and some additional striple trait where created. Mainly those three traits implementation :</p>
+
+<pre><code class="language-rust">
+impl StripleImpl for VoteDesc {
+  type Kind = PubSha512;
+}
+impl StripleFieldsIf for VoteDesc {
+  #[inline]
+  fn get_algo_key(&amp;self) -&gt; ByteSlice {
+...
+
+impl InstantiableStripleImpl for VoteDesc {
+...
+</code></pre>
+
+<p>Here VoteDesc struct could be use as a public sha 512 striple.</p>
+
+<p>So for all aspect of signing between messages, striple abstraction is used</p>
+
+<p>Common striple are load on start, yet a full descriptive striple context was not defined and most of the striple got wrong or unprecise descriptive (about) striple attached.</p>
+
+<pre><code class="language-rust">lazy_static!{
+pub static ref STRIPLEREFS : StripleRefs = init_striple_refs().unwrap();
+}
+</code></pre>
+
+<p>This is a good illustration of striple use, it makes reasoning easy : for a client execution of the protocol, we reach the following striple action in service.rs</p>
+
+<pre><code class="language-rust">// an envelope sign by (public signing) the vote desc:
+let (envelope,my_envelope_priv_key) = Envelope::new(&amp;vote_desc, my_commitment)?;
+</code></pre>
+
+<pre><code class="language-rust">// check envelope received (right vote)
+let valid_env = envelope.check(&amp;context.vote_desc).map_err(|e|StripleMydhtErr(e))?;
+</code></pre>
+
+<pre><code class="language-rust">// a participation signed by user
+Participation::new(
+  &amp;(me, &amp;self.me_sign_key[..]),
+  &amp;context.vote_desc,
+  &amp;context.envelopes,
+  valid
+)?
+</code></pre>
+
+<pre><code class="language-rust">// check participation receive with for the corresponding user
+let fp : &amp;P = from.user.borrow();
+let valid_p = participation.check(fp).map_err(|e|StripleMydhtErr(e))?
+</code></pre>
+
+<pre><code class="language-rust">// vote striple signed by envelope
+let vote = Vote::new(&amp;(&amp;context.my_envelope,&amp;context.my_envelope_priv_key), &amp;context.vote_desc, context.my_reply.clone(), context.my_commit_nonce.clone())?;
+</code></pre>
+
+<pre><code class="language-rust">// check received vote with existing enveloppes
+let valid_vote = is_commit_ok &amp;&amp; vote.check(&amp;context.envelopes[env_pos].0).map_err(|e|StripleMydhtErr(e))?;
+</code></pre>
+
+<h2 id="todo-1">TODO</h2>
+
+<ul>
+<li>BCont from striple is very wrong as it does not allow inline usage of stream : a Reader returned by the striple would be best (same with the multiple ids of content which would be best as an iterator : allowing bug numbers of relation backed for instance by a db query).</li>
+<li>use of a serde fork for initialization method, got to switch to the alternative approach when it will be completed (see <a href="https://github.com/serde-rs/serde/pull/1111">this pull</a>).</li>
+<li>Communication between both DHT is using the standard external api. Some cross service channel could be use (especially anodht using a weak channel to maindht global service).</li>
+</ul>
+
+<h1 id="mydht-notable-lib-change">MyDHT notable lib change</h1>
+
+<ul>
+<li>query peer from global service
+Similar to the way global service can ask mainloop for a connection to an address.</li>
+<li>weak channels with handle between global service and peer store</li>
+<li>fix shadower to allow some unread padding</li>
+</ul>
+
+<h1 id="mydht-roadmap">MyDHT roadmap?</h1>
+
+<p>Still missing things :
+- networking pattern like pub/sub or broadcast : initial use of kvstore service was a bit naive and a broadcast was written in the service.
+- Query for changed/updated/different service return value with primitive to filter the right ones (initial mydht was for immutable keyval but we extend to service query reply).
+- peer discovery : currently peer discovery occurs but it limits to the peerstore values -&gt; a configurable peer discovery is really needed (requires previous patterns) to automatically query peers (those query are accessible from outside) and look for the right ones (need to allow . At the time it could only be done manually by application through the api.
+- timer
+- peer connection management (when timer implemented we could close regularily some peers). Notably the use case where we close the transport and keep the service state and restore later : allowing big available authenticated peer pools, in this case restore of connection requires some service state to check (with maindht shadower it is useless but would be needed with a no secret shadower) for avoiding authentication rerun.
+- Perfect Forward Secrecy (PFS) for key exchange in mydht auth requires some minor adjustment (number of query is already fine and challenge could be use as a vector but we need to keep trace of it in our client and server service and use it as input for message shadower -&gt; need to slightly change some traits).
+- Macro V2 to derive and compose : obviously not really related to this POC
+- Default bootstrap macro to avoid defining all myDhtconf subtype and implementation, but just exception : lot of copy paste when defining the various hashmap or spawner.
+- peer pool are currently authenticated and connected peer, to scale we need to maintain some reachable authenticated peer pool (no client/server service but an authentication state to possibly lighten authentication on next connection) this is complementary with previous poin about peer connection management.
+- logging is lacking a lot, using a dedicated crate seems quite important (maybe slog), similarily myDHT should include some optional trait interface for metrics.</p>
+
+<p>The path towards something stable is still a long one, but writing this POC does point out some really needed functionalities for MyDHT.</p>
+
+<p>Yet this POC and this post is a nice way to check mydht design and its current status.</p>
+
+<p>Still at this point some others <a href="https://github.com/cheme/mydht/blob/master/design/webassembly_roadmap.md">very interesting things to test should go first</a> (attemting to run myDHT on webassembly).</p>
+
+      </div>
+    </article>
+    <aside class="ph3 mt2 mt6-ns">
+      
+
+
+
+
+
+
+
+  <div class="bg-light-gray pa3">
+    <ul>
+      <li class="list b mb3">
+        5 More Posts
+      </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/voting_machine/" class="link ph2 pv2 db black o-50">
+            Voting machine POC
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/tunnel_imp/" class="link ph2 pv2 db black">
+            Implementing MyDHT tunnel
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/tunnel/" class="link ph2 pv2 db black">
+            Tunnel crate and MyDHT ?
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/sync_transport/" class="link ph2 pv2 db black">
+            Allowing both blocking and non-blocking transport
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process2/" class="link ph2 pv2 db black">
+            MyDHT service usage switch (part 2)
+          </a>
+        </li>
+      
+        <li class="list f5 w-100 hover-bg-white nl1">
+          
+          <a href="/posts/process1/" class="link ph2 pv2 db black">
+            MyDHT Refactoring And Threading (part 1)
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+    </aside>
+  </div>
+
+    </main>
+    <footer class="bg-near-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://cheme.github.io/" >
+    &copy; 2018 Émeric misexperiment blog
+  </a>
+  
+
+
+
+
+
+
+  <a href="https://www.linkedin.com/in/emericchevalier" class="link-transition linkedin link dib z-999 pt3 pt0-l mr2" title="LinkedIn link">
+    <svg  height="32px"  style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z"/>
+</svg>
+  </a>
+
+
+  <a href="https://github.com/cheme" class="link-transition github link dib z-999 pt3 pt0-l mr2" title="Github link">
+    <svg  height="32px"  style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+
+  </a>
+
+
+  </div>
+</footer>
+
+    <script src="https://cheme.github.io/dist/app.bundle.js" async></script>
+
+  </body>
+</html>
